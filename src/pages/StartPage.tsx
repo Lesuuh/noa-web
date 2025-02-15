@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const StartPage = () => {
   const [openForm, setOpenForm] = useState(false);
@@ -54,9 +55,11 @@ const StartPage = () => {
             />
           </div>
           <div>
-            <button className="my-2 mt-7 bg-blue-800 text-white px-6 py-2 rounded-sm">
-              Start Exam
-            </button>
+            <Link to="/exam">
+              <button className="my-2 mt-7 bg-blue-800 text-white px-6 py-2 rounded-sm">
+                Start Exam
+              </button>
+            </Link>
           </div>
         </div>
       )}
