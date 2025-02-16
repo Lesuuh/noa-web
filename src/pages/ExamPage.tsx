@@ -3,6 +3,7 @@ import { useState } from "react";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { questions } from "../data/sampleQuestions";
 import { QuestionNav } from "../components/QuestionNav";
+import { Link, useNavigate } from "react-router-dom";
 
 interface ExamState {
   currentQuestion: number;
@@ -11,7 +12,11 @@ interface ExamState {
   isSubmitted: boolean;
 }
 
-const ExamPage = () => {
+interface ExamPageProps {
+  name: string;
+}
+
+const ExamPage = ({ name }: ExamPageProps) => {
   const EXAM_TIME = 30 * 60;
   const [examState, setExamState] = useState<ExamState>({
     currentQuestion: 0,
@@ -19,6 +24,8 @@ const ExamPage = () => {
     timeRemaining: EXAM_TIME,
     isSubmitted: false,
   });
+
+  const navigate = useNavigate();
 
   const currentQuestion = questions[examState.currentQuestion];
   const currentQuestionOptions = currentQuestion.options;
@@ -62,7 +69,7 @@ const ExamPage = () => {
       0
     );
     console.log(score);
-    return score;
+    navigate("/result", { state: { score } });
   };
 
   const navigateQuestion = (index: number) => {
@@ -89,7 +96,7 @@ const ExamPage = () => {
           </h2>
         </div>
         <div>
-          <p className="font-semibold">Name:Lesuuh</p>
+          <p className="font-semibold">Name:{name}</p>
           <div className="flex gap-4 py-3 items-center">
             <p className="font-bold text-xl bg-red-400 px-3 py-2">
               Time: 30mins
@@ -98,7 +105,7 @@ const ExamPage = () => {
               onClick={() => handleSubmit()}
               className="bg-slate-500 px-6 py-2 rounded-sm text-white font-semibold cursor-pointer"
             >
-              Submit
+              <Link to="result">Submit</Link>
             </button>
           </div>
         </div>

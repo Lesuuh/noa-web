@@ -1,8 +1,19 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+interface StartPageProps {
+  name: string;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
 
-const StartPage = () => {
+const StartPage = ({ name, handleChange }: StartPageProps) => {
   const [openForm, setOpenForm] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    navigate("/exam");
+  };
+
   return (
     <div className=" bg-slate-300 rounded-lg space-y-10 flex justify-center flex-col  items-center w-full h-screen">
       {/* <img src="../../public/noa.jpg" alt="" /> */}
@@ -32,35 +43,45 @@ const StartPage = () => {
 
       {openForm && (
         <div className="flex w-full max-w-[600px] p-4 flex-col space-y-4 items-center">
-          <div className="flex flex-col w-full">
-            <label htmlFor="name" className="text-base font-semibold">
-              Name:
-            </label>
-            <input
-              id="name"
-              className="w-full px-2 py-2 rounded-sm"
-              type="text"
-              placeholder="Enter your name"
-            />
-          </div>
-          <div className="flex flex-col w-full">
-            <label htmlFor="examNumber" className="text-base  font-semibold">
-              Exam Number:
-            </label>
-            <input
-              id="examNumber"
-              className="w-full px-2 py-2 rounded-sm"
-              type="number"
-              placeholder="Enter your Exam number"
-            />
-          </div>
-          <div>
-            <Link to="/exam">
-              <button className="my-2 mt-7 bg-blue-800 text-white px-6 py-2 rounded-sm">
+          <form
+            onSubmit={handleSubmit}
+            className="flex w-full max-w-[600px] p-4 flex-col space-y-4 items-center"
+          >
+            <div className="flex flex-col w-full">
+              <label htmlFor="name" className="text-base font-semibold">
+                Name:
+              </label>
+              <input
+                id="name"
+                className="w-full px-2 py-2 rounded-sm"
+                type="text"
+                value={name}
+                onChange={handleChange}
+                placeholder="Enter your name"
+                required
+              />
+            </div>
+            <div className="flex flex-col w-full">
+              <label htmlFor="examNumber" className="text-base  font-semibold">
+                Exam Number:
+              </label>
+              <input
+                id="examNumber"
+                className="w-full px-2 py-2 rounded-sm"
+                type="number"
+                placeholder="Enter your Exam number"
+                required
+              />
+            </div>
+            <div>
+              <button
+                type="submit"
+                className="my-2 mt-7 bg-blue-800 text-white px-6 py-2 rounded-sm"
+              >
                 Start Exam
               </button>
-            </Link>
-          </div>
+            </div>
+          </form>
         </div>
       )}
     </div>
