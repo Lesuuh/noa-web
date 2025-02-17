@@ -15,7 +15,7 @@ export const questions = [
     id: 2,
     question:
       "According to the Explainer 22nd Edition, what percentage of students transition to tertiary education after finishing primary and secondary education",
-    options: ["50%", "34%", "65%", "25%"],
+    options: ["50%", "35%", "65%", "25%"],
     correctAnswer: 1,
   },
   {
@@ -40,7 +40,7 @@ export const questions = [
       "To organize cultural events",
       "To provide financial aid to students",
     ],
-    correctAnswer: 1,
+    correctAnswer: 0,
   },
   {
     id: 5,
@@ -52,7 +52,7 @@ export const questions = [
       "Prof Tahir Mammam",
       "Bayo Onanuga",
     ],
-    correctAnswer: 2,
+    correctAnswer: 1,
   },
   {
     id: 6,
@@ -76,7 +76,7 @@ export const questions = [
       "Bola Tinubu",
       "Mohammed Idris",
     ],
-    correctAnswer: 2,
+    correctAnswer: 1,
   },
   {
     id: 8,
@@ -88,7 +88,7 @@ export const questions = [
       "To register for events",
       "To create personal blogs",
     ],
-    correctAnswer: 2,
+    correctAnswer: 1,
   },
   {
     id: 9,
@@ -96,11 +96,11 @@ export const questions = [
       "What rewards can users earn by participating in the Quiz section of the Mobiliser app?",
     options: [
       "Movie tickets",
-      "Recharge cards adn various other prizes",
+      "Recharge cards and various other prizes",
       "Concert passes",
       "Gift vouchers",
     ],
-    correctAnswer: 2,
+    correctAnswer: 1,
   },
   {
     id: 10,
@@ -108,11 +108,11 @@ export const questions = [
       "What is one of the main objectives of the Mobiliser app according to the Director-General Mallam Lanre Issa-Onilu",
     options: [
       "To promote international tourism",
-      "To empower youths to voice thier concerns and stya informed",
+      "To empower youths to voice thier concerns and stay informed",
       "To provide financial services",
       "To offer online shopping discounts",
     ],
-    correctAnswer: 2,
+    correctAnswer: 1,
   },
   {
     id: 11,
@@ -120,8 +120,8 @@ export const questions = [
       "What solution was propose to address the skills gap among youths, as mentione in the Explainer 22nd Edition?",
     options: [
       "Increase in academic subjects",
-      "Exposure to skills",
       "More sports activites",
+      "Exposure to skills",
       "Cultural exchange programs",
     ],
     correctAnswer: 2,
@@ -148,6 +148,6 @@ export const questions = [
       "Cultural Heritage",
       "Digital Transformation",
     ],
-    correctAnswer: 2,
+    correctAnswer: 0,
   },
 ];
