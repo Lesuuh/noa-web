@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 interface StartPageProps {
   name: string;
+  examNumber: number | undefined;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const StartPage = ({ name, handleChange }: StartPageProps) => {
+const StartPage = ({ name, examNumber, handleChange }: StartPageProps) => {
   const [openForm, setOpenForm] = useState(false);
   const navigate = useNavigate();
 
@@ -69,6 +70,8 @@ const StartPage = ({ name, handleChange }: StartPageProps) => {
                 id="examNumber"
                 className="w-full px-2 py-2 rounded-sm"
                 type="number"
+                value={examNumber}
+                onChange={handleChange}
                 placeholder="Enter your Exam number"
                 required
               />

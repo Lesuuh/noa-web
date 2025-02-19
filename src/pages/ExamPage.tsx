@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // import { ExamState } from "../types";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { questions } from "../data/sampleQuestions";
@@ -14,9 +14,10 @@ interface ExamState {
 
 interface ExamPageProps {
   name: string;
+  examNumber: number | undefined;
 }
 
-const ExamPage = ({ name }: ExamPageProps) => {
+const ExamPage = ({ name, examNumber }: ExamPageProps) => {
   const EXAM_TIME = 30 * 60;
   const [examState, setExamState] = useState<ExamState>({
     currentQuestion: 0,
@@ -79,8 +80,21 @@ const ExamPage = ({ name }: ExamPageProps) => {
     }));
   };
 
-  //   console.log(currentQuestion);
-  //   console.log(examState);
+  const initialTime = 75;
+  const [timeRemaining, setTimeRemaining] = useState(initialTime * 60);
+
+  useEffect(() => {
+    if (timeRemaining <= 0) {
+      handleSubmit();
+    }
+    const countDown = setInterval(() => {
+      setTimeRemaining((prevTime) => prevTime - 1);
+    }, 1000);
+    return () => clearInterval(countDown);
+  }, [timeRemaining]);
+
+  const minutes = Math.floor(timeRemaining / 60);
+  const seconds = timeRemaining % 60;
 
   return (
     <div>
@@ -96,10 +110,18 @@ const ExamPage = ({ name }: ExamPageProps) => {
           </h2>
         </div>
         <div>
-          <p className="font-semibold">Name:{name}</p>
+          <p className="font-semibold">
+            <span className="font-thin">Name: </span>
+            {name}
+          </p>
+          <p className="font-semibold">
+            <span className="font-thin">Exam Number: </span>
+            {examNumber}
+          </p>
           <div className="flex gap-4 py-3 items-center">
             <p className="font-bold text-xl bg-red-400 px-3 py-2">
-              Time: 30mins
+              {String(minutes).padStart(2, "0")}:
+              {String(seconds).padStart(2, "0")}
             </p>
             <button
               onClick={() => handleSubmit()}
