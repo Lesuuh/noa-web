@@ -69,7 +69,7 @@ const StartPage = ({ name, examNumber, handleChange }: StartPageProps) => {
               <input
                 id="examNumber"
                 className="w-full px-2 py-2 rounded-sm"
-                type="number"
+                type="text"
                 value={examNumber}
                 onChange={handleChange}
                 placeholder="Enter your Exam number"

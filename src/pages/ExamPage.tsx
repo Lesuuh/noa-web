@@ -80,7 +80,7 @@ const ExamPage = ({ name, examNumber }: ExamPageProps) => {
     }));
   };
 
-  const initialTime = 75;
+  const initialTime = 50;
   const [timeRemaining, setTimeRemaining] = useState(initialTime * 60);
 
   useEffect(() => {
