@@ -35,7 +35,7 @@ export const QuestionNav: React.FC<QuestionNavProps> = ({
           <button
             key={questionNumber}
             onClick={() => onQuestionSelect(questionNumber)}
-            className={`w-10 h-10 rounded-lg font-medium transition-colors ${buttonStyle}`}
+            className={`w-8 h-8 rounded-lg font-medium transition-colors ${buttonStyle}`}
           >
             {questionNumber + 1}
           </button>
