@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 interface StartPageProps {
   name: string;
-  examNumber: number | undefined;
+  examNumber: string;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 

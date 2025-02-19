@@ -7,13 +7,13 @@ import ResultPage from "./pages/ResultPage";
 
 const App = () => {
   const [name, setName] = useState("");
-  const [examNumber, setExamNumber] = useState<number | undefined>(undefined);
+  const [examNumber, setExamNumber] = useState("");
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     if (id === "name") {
       setName(value);
     } else if (id === "examNumber") {
-      setExamNumber(Number(value));
+      setExamNumber(value);
     }
   };
   return (

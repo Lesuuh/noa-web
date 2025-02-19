@@ -14,7 +14,7 @@ interface ExamState {
 
 interface ExamPageProps {
   name: string;
-  examNumber: number | undefined;
+  examNumber: string;
 }
 
 const ExamPage = ({ name, examNumber }: ExamPageProps) => {
