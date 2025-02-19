@@ -111,12 +111,12 @@ const ExamPage = ({ name }: ExamPageProps) => {
         </div>
       </header>
       <main className="bg-slate-300 px-4 py-4 rounded-sm my-10">
-        <div className="bg-slate-100 h-auto  px-4 py-7 rounded-sm">
+        <div className="bg-slate-100 h-auto  px-4 py-7 my-5 rounded-sm">
           <p>Question {currentQuestion.id}:</p>
           <p>{currentQuestion.question}</p>
         </div>
         <div className="h-auto">
-          <ul className="ml-3 my-3">
+          <ul className="ml-3 my-10">
             {currentQuestionOptions.map((option, index) => (
               <li key={index}>
                 <input
@@ -134,7 +134,7 @@ const ExamPage = ({ name }: ExamPageProps) => {
             ))}
           </ul>
         </div>
-        <div className="flex justify-between">
+        <div className="flex justify-between ">
           <button
             onClick={() => handlePrevious()}
             disabled={examState.currentQuestion === 0}
