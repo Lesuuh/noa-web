@@ -454,7 +454,7 @@ export const questions = [
       "Mobilization of favourable public opinion and support for government policies, programmes and activities;",
       "Ensure that Government Programme and policies are better understood by the general public.",
     ],
-    correctAnswer: 2,
+    correctAnswer: 4,
   },
   {
     id: 41,
@@ -467,7 +467,7 @@ export const questions = [
       "35 State Directorates and FCT",
       "39 State Directorates and FCT",
     ],
-    correctAnswer: 2,
+    correctAnswer: 1,
   },
   {
     id: 42,
@@ -493,7 +493,7 @@ export const questions = [
       "Reform on Human Rights",
       "Tax Bills Reform",
     ],
-    correctAnswer: 4,
+    correctAnswer: 3,
   },
   {
     id: 44,
@@ -506,7 +506,7 @@ export const questions = [
       "Promoting Ethical Values, Awareness and National Development",
       "Nationwide Sensitization Campaign on Promoting Awareness, Ethical Values and National Development.",
     ],
-    correctAnswer: 4,
+    correctAnswer: 2,
   },
 
   {
@@ -598,7 +598,7 @@ export const questions = [
       "The National Orientation Agency (NOA) was established by the National Orientation Agency Decree No. 100 of 23rd October, 1993, now an Act of parliament Cap. No 64 of 2004.",
       "The National Orientation Agency (NOA) was established by the National Orientation Agency Decree No. 100 of 27th August, 1993, now an Act of parliament Cap. No 64 of 2004.",
     ],
-    correctAnswer: 0,
+    correctAnswer: 1,
   },
   {
     id: 52,
@@ -631,7 +631,7 @@ export const questions = [
       "Strategies, Platforms, Structures and Coordination (SPSC) of NOA",
       "Structure, Platform, Standard and Coordination (SPSC) of NOA",
     ],
-    correctAnswer: 3,
+    correctAnswer: 1,
   },
   {
     id: 55,
@@ -657,7 +657,7 @@ export const questions = [
       "Special Duties and State Operations department (SDSO)",
       "General Services Department",
     ],
-    correctAnswer: 0,
+    correctAnswer: 3,
   },
   {
     id: 57,
@@ -670,7 +670,7 @@ export const questions = [
       "Special Duties and State Operations department (SDSO)",
       "General Services (GS) Department",
     ],
-    correctAnswer: 1,
+    correctAnswer: 0,
   },
   {
     id: 58,
@@ -695,7 +695,7 @@ export const questions = [
       "Professor Elochukwu C. Amucheazi",
       "Professor Aloy Ejiogun",
     ],
-    correctAnswer: 4,
+    correctAnswer: 1,
   },
   {
     id: 60,
@@ -721,7 +721,7 @@ export const questions = [
       "Entrepreneurship",
       "Meritocracy",
     ],
-    correctAnswer: 3,
+    correctAnswer: 2,
   },
   {
     id: 62,
@@ -747,7 +747,7 @@ export const questions = [
       "Global Reputational Management",
       "Orientation Programme for Appointed and Elected Government Officer",
     ],
-    correctAnswer: 3,
+    correctAnswer: 2,
   },
   {
     id: 64,
@@ -786,7 +786,7 @@ export const questions = [
       "The flora on which the shield stands is coctus the spectabilis which is a common wild flower found throughout Nigeria.",
       "The wreath on which the Eagle perches is in Nigeria’s national colors of green white green.",
     ],
-    correctAnswer: 3,
+    correctAnswer: 0,
   },
   {
     id: 67,
@@ -813,7 +813,7 @@ export const questions = [
       "The seven-for-seven pillars of the National Values Charter (NVC) are the seven (7) Core Promises and responsibilities of the Nigerian state to Nigerian citizens and the seven obligations of the citizens to the nation which together form the social contract between the Nigerian government and her citizens.",
       "The Nigerian Promises to her citizens are: 1. Equity 2. Democracy 3. Entrepreneurship 4. Peace 5. Inclusivity 6. Freedom 7. Meritocracy.",
     ],
-    correctAnswer: 2,
+    correctAnswer: 1,
   },
   {
     id: 70,
@@ -911,7 +911,7 @@ export const questions = [
       "Enhance Infrastructure and Transportation as Enablers for Growth",
       "Improving Playing Field for individuals and organisations",
     ],
-    correctAnswer: 4,
+    correctAnswer: 3,
   },
   {
     id: 78,
@@ -936,7 +936,7 @@ export const questions = [
       "Crime, Lawlessness, Hygiene, Education, Environment, Abuse and Nationality.",
       "Crime, Lawlessness, Health, Education, Environment, Abuse and National.",
     ],
-    correctAnswer: 0,
+    correctAnswer: 1,
   },
   {
     id: 80,
@@ -1059,7 +1059,7 @@ export const questions = [
     id: 89,
     question: "How many stanzas does the current National Anthem have?",
     options: ["2", "3", "4", "5", "1"],
-    correctAnswer: 0,
+    correctAnswer: 1,
   },
   {
     id: 90,
@@ -1086,7 +1086,7 @@ export const questions = [
       "Appropriation Bill is a proposed action made by a member or a group of members to a Chamber to do something, order something to be done or express an opinion with regards to some matter; while Appropriation Act is a formal proposal enacted into law passed by both houses of the legislature.",
       "None of the above.",
     ],
-    correctAnswer: 2,
+    correctAnswer: 1,
   },
   {
     id: 92,
@@ -1099,7 +1099,7 @@ export const questions = [
       "Mrs. Mojisola Adeyeye",
       "Mrs. Funke Adesiyan",
     ],
-    correctAnswer: 0,
+    correctAnswer: 1,
   },
   {
     id: 93,
@@ -1151,7 +1151,7 @@ export const questions = [
       "Membership of cults.",
       "Insubordination.",
     ],
-    correctAnswer: 3,
+    correctAnswer: 2,
   },
   {
     id: 97,
@@ -1164,7 +1164,7 @@ export const questions = [
       "Conviction on a Criminal charge.",
       "Absence from duty without leave (AWOL).",
     ],
-    correctAnswer: 4,
+    correctAnswer: 1,
   },
   {
     id: 98,
@@ -1190,7 +1190,7 @@ export const questions = [
       "1st January, 2020",
       "1st January, 2019",
     ],
-    correctAnswer: 4,
+    correctAnswer: 2,
   },
 
   {
@@ -1204,7 +1204,7 @@ export const questions = [
       "Refusal to take or carry out lawful instruction",
       "Sleeping on duty",
     ],
-    correctAnswer: 1,
+    correctAnswer: 2,
   },
   {
     id: 101,
@@ -1230,7 +1230,7 @@ export const questions = [
       "Where such spouse improves themselves by acquiring additional qualifications, which will enhance their usefulness to the service, they shall be considered for advancement in insurance with prevailing regulations;",
       "The period a spouse can be on leave of absence shall be two (2) years in the first instance and subject to an extension of not more than one year.",
     ],
-    correctAnswer: 0,
+    correctAnswer: 4,
   },
   {
     id: 103,
@@ -1360,7 +1360,7 @@ export const questions = [
       "Leave of Absence for Special/Personal Assistant on grounds of Public Policy.",
       "Leave of Absence for spouse of Presidents, Vice Presidents, Governors, Deputy Governors, on grounds of Public Policy.",
     ],
-    correctAnswer: 2,
+    correctAnswer: 0,
   },
   {
     id: 113,
@@ -1413,7 +1413,7 @@ export const questions = [
       "Establishment Allowance",
       "Disturbance Allowance",
     ],
-    correctAnswer: 2,
+    correctAnswer: 3,
   },
   {
     id: 117,
@@ -1426,7 +1426,7 @@ export const questions = [
       "G/L 14-15 and its equivalent – N25,000",
       "G/L 16-17 and its equivalent – N37,500",
     ],
-    correctAnswer: null,
+    correctAnswer: 0,
   },
   {
     id: 118,
@@ -1438,7 +1438,7 @@ export const questions = [
       "Security Agencies",
       "Operational Agencies",
     ],
-    correctAnswer: 1,
+    correctAnswer: 4,
   },
   {
     id: 119,
@@ -1491,7 +1491,7 @@ export const questions = [
       "Survey of vehicles",
       "None of the above",
     ],
-    correctAnswer: 4,
+    correctAnswer: 3,
   },
   {
     id: 123,
@@ -1504,7 +1504,7 @@ export const questions = [
       "Sick Duty Certificate",
       "None of the above",
     ],
-    correctAnswer: 4,
+    correctAnswer: 3,
   },
   {
     id: 124,
@@ -1530,7 +1530,7 @@ export const questions = [
       "Where he/she is about to be adjudged bankrupt or insolvent wage earner, for as long as he/she remains an undischarged bankrupt.",
       "If regarded as necessarily impairing the efficiency of an officer and rendering him/her liable to disciplinary action.",
     ],
-    correctAnswer: 4,
+    correctAnswer: 3,
   },
   {
     id: 126,
@@ -1563,7 +1563,7 @@ export const questions = [
     question:
       "Number of paternity leave days for male officer in civil/public service is:",
     options: ["21 days", "15 days", "14 days", "18 days", "25 days"],
-    correctAnswer: 4,
+    correctAnswer: 2,
   },
   {
     id: 129,
@@ -1615,7 +1615,7 @@ export const questions = [
       "Anyone holding an elected office must vacate the position before he or she can be eligible to participate in a primary election, convention, or congress of political parties either as a candidate or as a delegate",
       "Where the number of votes cast at an election in any polling unit exceeds the number of accredited voters in that polling unit, the presiding officer shall cancel the result of the election in that polling unit",
     ],
-    correctAnswer: 4,
+    correctAnswer: 3,
   },
   {
     id: 133,
@@ -1668,7 +1668,7 @@ export const questions = [
       "Litigation and other Privileges",
       "Scoring keys, library circulation, Architects and Engineering plans for public Buildings",
     ],
-    correctAnswer: 4,
+    correctAnswer: 3,
   },
   {
     id: 137,
@@ -1698,7 +1698,7 @@ export const questions = [
   },
 
   {
-    id: 138,
+    id: 139,
     question:
       "Which of the following is NOT a Procedure/guideline for the Disposal of Obsolete Government Property?",
     options: [
@@ -1711,7 +1711,7 @@ export const questions = [
     correctAnswer: 4,
   },
   {
-    id: 139,
+    id: 140,
     question:
       "The Specific Procurement Notice (SPN) contains information concerning notification of specific contract opportunities or Invitation for Tenders except:",
     options: [
@@ -1724,7 +1724,7 @@ export const questions = [
     correctAnswer: 4,
   },
   {
-    id: 140,
+    id: 141,
     question:
       "All of the following are Advantages of Treasury Single Account (TSA) except:",
     options: [
@@ -1737,7 +1737,7 @@ export const questions = [
     correctAnswer: 4,
   },
   {
-    id: 141,
+    id: 142,
     question:
       "All of the following types of feedback reports are written by PRS Department of NOA except:",
     options: [
