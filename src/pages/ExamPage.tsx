@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-// import { ExamState } from "../types";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { questions } from "../data/sampleQuestions";
 import { QuestionNav } from "../components/QuestionNav";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 interface ExamState {
   currentQuestion: number;
@@ -69,7 +69,6 @@ const ExamPage = ({ name, examNumber }: ExamPageProps) => {
       },
       0
     );
-    console.log(score);
     navigate("/result", { state: { score } });
   };
 
@@ -97,50 +96,52 @@ const ExamPage = ({ name, examNumber }: ExamPageProps) => {
   const seconds = timeRemaining % 60;
 
   return (
-    <div>
-      <header className="flex">
-        <div className="mr-auto">
+    <div className="min-h-screen bg-gray-100 text-gray-800">
+      <header className="bg-white shadow-md py-4 px-6 flex justify-between items-center">
+        <div>
           <img
             src="https://noa.gov.ng/assets/logo-nW5qDcRC.svg"
-            alt=""
-            className="text-white w-60"
+            alt="NOA Logo"
+            className="w-40"
           />
-          <h2 className="text-lg font-bold py-2">
+          <h2 className="text-xl font-bold mt-2">
             2025 NOA Promotional Examination
           </h2>
         </div>
-        <div>
+        <div className="text-right">
           <p className="font-semibold">
-            <span className="font-thin">Name: </span>
+            <span className="font-light">Name: </span>
             {name}
           </p>
           <p className="font-semibold">
-            <span className="font-thin">Exam Number: </span>
+            <span className="font-light">Exam Number: </span>
             {examNumber}
           </p>
-          <div className="flex gap-4 py-3 items-center">
-            <p className="font-bold text-xl bg-red-400 px-3 py-2">
+          <div className="flex items-center gap-4 mt-2">
+            <p className="font-bold text-lg bg-red-500 text-white px-4 py-2 rounded-lg">
               {String(minutes).padStart(2, "0")}:
               {String(seconds).padStart(2, "0")}
             </p>
-            <button
-              onClick={() => handleSubmit()}
-              className="bg-slate-500 px-6 py-2 rounded-sm text-white font-semibold cursor-pointer"
+            <Button
+              onClick={handleSubmit}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-md"
             >
-              <Link to="result">Submit</Link>
-            </button>
+              Submit
+            </Button>
           </div>
         </div>
       </header>
-      <main className="bg-slate-300 px-4 py-4 rounded-sm my-10">
-        <div className="bg-slate-100 h-auto  px-4 py-7 my-5 rounded-sm">
-          <p>Question {currentQuestion.id}:</p>
-          <p>{currentQuestion.question}</p>
+      <main className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg mt-8 p-6">
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-2">
+            Question {currentQuestion.id}:
+          </h3>
+          <p className="text-gray-700">{currentQuestion.question}</p>
         </div>
-        <div className="h-auto">
-          <ul className="ml-3 my-10">
+        <div className="mb-6">
+          <ul className="space-y-4">
             {currentQuestionOptions.map((option, index) => (
-              <li key={index}>
+              <li key={index} className="flex items-center">
                 <input
                   type="radio"
                   name={`question-${currentQuestion.id}`}
@@ -149,40 +150,46 @@ const ExamPage = ({ name, examNumber }: ExamPageProps) => {
                     examState.answers[examState.currentQuestion] === index
                   }
                   onChange={() => handleOptionChange(index)}
-                  className="mr-2 py-2"
+                  className="mr-3"
                 />
-                {option}
+                <label className="text-gray-700">{option}</label>
               </li>
             ))}
           </ul>
         </div>
-        <div className="flex justify-between ">
-          <button
-            onClick={() => handlePrevious()}
+        <div className="flex justify-between">
+          <Button
+            onClick={handlePrevious}
             disabled={examState.currentQuestion === 0}
-            className="px-6 py-2 bg-slate-700 text-white rounded-sm flex items-center justify-between"
+            className={`px-6 py-2 rounded-lg shadow-md ${
+              examState.currentQuestion === 0
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 text-white"
+            }`}
           >
-            <FaArrowLeft /> <p className="ml-2">Previous</p>
-          </button>
-          <button
-            onClick={() => handleNext()}
-            className="px-6 py-2 bg-slate-700 text-white rounded-sm flex items-center justify-between"
+            <FaArrowLeft className="mr-2" /> Previous
+          </Button>
+          <Button
+            onClick={handleNext}
+            disabled={examState.currentQuestion === questions.length - 1}
+            className={`px-6 py-2 rounded-lg shadow-md ${
+              examState.currentQuestion === questions.length - 1
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 text-white"
+            }`}
           >
-            <p className="mr-2">Next</p>
-            <FaArrowRight />
-          </button>
+            Next <FaArrowRight className="ml-2" />
+          </Button>
         </div>
       </main>
-      <div className="flex items-center space-x-4">
-        {/* totalQuestions, answers, currentQuestion, onQuestionSelect  */}
-
+      <footer className="mt-8 text-center text-gray-600">
         <QuestionNav
           totalQuestions={questions.length}
           currentQuestion={examState.currentQuestion}
           answers={examState.answers}
           onQuestionSelect={navigateQuestion}
         />
-      </div>
+      </footer>
     </div>
   );
 };

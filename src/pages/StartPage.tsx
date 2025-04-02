@@ -1,5 +1,7 @@
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 interface StartPageProps {
   name: string;
   examNumber: string;
@@ -16,45 +18,42 @@ const StartPage = ({ name, examNumber, handleChange }: StartPageProps) => {
   };
 
   return (
-    <div className=" bg-slate-300 rounded-lg space-y-10 flex justify-center flex-col  items-center w-full h-screen">
-      {/* <img src="../../public/noa.jpg" alt="" /> */}
-      <img
-        src="https://noa.gov.ng/assets/logo-nW5qDcRC.svg"
-        alt=""
-        className="text-white w-60"
-      />
-      <div
-        className={`${
-          openForm === true ? "hidden" : ""
-        } flex flex-col items-center `}
-      >
-        <h2 className="text-2xl font-semibold">
-          Welcome to 2025 NOA Promotional Examination
-        </h2>
-        <p className="text-center font-thin">
-          Click the button below to start exam
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-gray-800">
+      <div className="flex flex-col items-center space-y-6">
+        <img
+          src="https://noa.gov.ng/assets/logo-nW5qDcRC.svg"
+          alt="NOA Logo"
+          className="w-40 md:w-60"
+        />
+        <h1 className="text-3xl md:text-4xl font-bold text-center">
+          Welcome to the 2025 NOA Promotional Examination
+        </h1>
+        <p className="text-lg md:text-xl text-center font-light text-gray-600">
+          Click the button below to start your exam
         </p>
-        <button
-          className="my-2 mt-7 bg-blue-800 text-white px-6 py-2 rounded-sm"
-          onClick={() => setOpenForm(true)}
-        >
-          Begin
-        </button>
+        {!openForm && (
+          <Button
+            className="bg-gray-800 hover:bg-gray-900 text-white px-8 py-3 rounded-lg shadow-lg transition-all duration-300"
+            onClick={() => setOpenForm(true)}
+          >
+            Begin
+          </Button>
+        )}
       </div>
 
       {openForm && (
-        <div className="flex w-full max-w-[600px] p-4 flex-col space-y-4 items-center">
-          <form
-            onSubmit={handleSubmit}
-            className="flex w-full max-w-[600px] p-4 flex-col space-y-4 items-center"
-          >
-            <div className="flex flex-col w-full">
-              <label htmlFor="name" className="text-base font-semibold">
+        <div className="mt-10 w-full max-w-md bg-white text-gray-800 rounded-lg shadow-lg p-6">
+          <h2 className="text-2xl font-semibold text-center mb-4">
+            Enter Your Details
+          </h2>
+          <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+            <div className="flex flex-col">
+              <label htmlFor="name" className="text-base font-medium">
                 Name:
               </label>
               <input
                 id="name"
-                className="w-full px-2 py-2 rounded-sm"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
                 type="text"
                 value={name}
                 onChange={handleChange}
@@ -62,13 +61,13 @@ const StartPage = ({ name, examNumber, handleChange }: StartPageProps) => {
                 required
               />
             </div>
-            <div className="flex flex-col w-full">
-              <label htmlFor="examNumber" className="text-base  font-semibold">
+            <div className="flex flex-col">
+              <label htmlFor="examNumber" className="text-base font-medium">
                 Exam Number:
               </label>
               <input
                 id="examNumber"
-                className="w-full px-2 py-2 rounded-sm"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
                 type="text"
                 value={examNumber}
                 onChange={handleChange}
@@ -76,14 +75,12 @@ const StartPage = ({ name, examNumber, handleChange }: StartPageProps) => {
                 required
               />
             </div>
-            <div>
-              <button
-                type="submit"
-                className="my-2 mt-7 bg-blue-800 text-white px-6 py-2 rounded-sm"
-              >
-                Start Exam
-              </button>
-            </div>
+            <Button
+              type="submit"
+              className="w-full bg-gray-800 hover:bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-300"
+            >
+              Start Exam
+            </Button>
           </form>
         </div>
       )}
