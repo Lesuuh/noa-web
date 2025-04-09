@@ -20,7 +20,7 @@ export const QuestionNav: React.FC<QuestionNavProps> = ({
   }
 
   return (
-    <div className="flex flex-wrap gap-2 p-4 bg-white rounded-lg shadow-sm">
+    <div className="flex flex-wrap max-w-[1400px] mx-auto w-full gap-2 p-4 bg-white rounded-lg shadow-sm">
       {questionNumbers.map((questionNumber) => {
         // Determine the button style based on its state
         let buttonStyle = "bg-gray-100 text-gray-600 hover:bg-gray-200"; // Default style

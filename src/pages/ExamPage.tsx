@@ -96,7 +96,7 @@ const ExamPage = ({ name, examNumber }: ExamPageProps) => {
   const seconds = timeRemaining % 60;
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-800">
+    <div className="min-h-screen max-w-md md:max-w-[1400px] w-full mx-auto bg-gray-100 text-gray-800">
       <header className="bg-white shadow-md py-4 px-6 flex justify-between items-center">
         <div>
           <img

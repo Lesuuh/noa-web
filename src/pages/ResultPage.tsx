@@ -6,7 +6,7 @@ const ResultPage = () => {
   const { score } = location.state || { score: 0 };
 
   return (
-    <div className="flex flex-col h-screen justify-center items-center bg-gradient-to-br from-green-400 to-blue-500 text-white">
+    <div className="flex flex-col max-w-md mx-auto w-full h-screen justify-center items-center bg-gradient-to-br from-green-400 to-blue-500 text-white">
       <div className="bg-white text-gray-800 rounded-lg shadow-lg p-8 max-w-md w-full text-center">
         <h2 className="text-4xl font-bold mb-4 text-green-600">
           Congratulations!

@@ -1723,30 +1723,30 @@ export const questions = [
     ],
     correctAnswer: 4,
   },
-  {
-    id: 141,
-    question:
-      "All of the following are Advantages of Treasury Single Account (TSA) except:",
-    options: [
-      "Treasury Single Account (TSA) allows Government banking to be unified, to enable the relevant stakeholders, such as the Ministry of Finance and Accountant General of the Federation to have full oversight of all cash flows across different bank accounts",
-      "TSA helps check incidence of multiple accounts operated by government Ministries, Department and Agencies (MDAs) for collection and spending of government revenues",
-      "TSA will ensure adequate monitoring of Government revenue receipts and expenditures and block leakages, as no MDA is allowed to keep any operational bank account",
-      "TSA will help check incidence of idle cash lying over extended periods in bank accounts held by spending MDAs, while government continues to borrow to execute its budgets",
-      "Under TSA, DBMs using public funds deposited by MDAs to make free profits will be possible",
-    ],
-    correctAnswer: 4,
-  },
-  {
-    id: 142,
-    question:
-      "All of the following types of feedback reports are written by PRS Department of NOA except:",
-    options: [
-      "Pulse of the Nation Report",
-      "Progress Report",
-      "Emergency Report",
-      "Quarterly Report",
-      "Annual Report",
-    ],
-    correctAnswer: 2,
-  },
+  // {
+  //   id: 141,
+  //   question:
+  //     "All of the following are Advantages of Treasury Single Account (TSA) except:",
+  //   options: [
+  //     "Treasury Single Account (TSA) allows Government banking to be unified, to enable the relevant stakeholders, such as the Ministry of Finance and Accountant General of the Federation to have full oversight of all cash flows across different bank accounts",
+  //     "TSA helps check incidence of multiple accounts operated by government Ministries, Department and Agencies (MDAs) for collection and spending of government revenues",
+  //     "TSA will ensure adequate monitoring of Government revenue receipts and expenditures and block leakages, as no MDA is allowed to keep any operational bank account",
+  //     "TSA will help check incidence of idle cash lying over extended periods in bank accounts held by spending MDAs, while government continues to borrow to execute its budgets",
+  //     "Under TSA, DBMs using public funds deposited by MDAs to make free profits will be possible",
+  //   ],
+  //   correctAnswer: 4,
+  // },
+  // {
+  //   id: 142,
+  //   question:
+  //     "All of the following types of feedback reports are written by PRS Department of NOA except:",
+  //   options: [
+  //     "Pulse of the Nation Report",
+  //     "Progress Report",
+  //     "Emergency Report",
+  //     "Quarterly Report",
+  //     "Annual Report",
+  //   ],
+  //   correctAnswer: 2,
+  // },
 ];

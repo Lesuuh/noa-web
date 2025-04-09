@@ -18,7 +18,7 @@ const StartPage = ({ name, examNumber, handleChange }: StartPageProps) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-gray-800">
+    <div className="min-h-screen flex flex-col max-w-[1500px] mx-auto items-center justify-center bg-gray-100 text-gray-800">
       <div className="flex flex-col items-center space-y-6">
         <img
           src="https://noa.gov.ng/assets/logo-nW5qDcRC.svg"
@@ -42,7 +42,7 @@ const StartPage = ({ name, examNumber, handleChange }: StartPageProps) => {
       </div>
 
       {openForm && (
-        <div className="mt-10 w-full max-w-md bg-white text-gray-800 rounded-lg shadow-lg p-6">
+        <div className="mt-10  mx-auto w-full max-w-md bg-white text-gray-800 rounded-lg shadow-lg p-6">
           <h2 className="text-2xl font-semibold text-center mb-4">
             Enter Your Details
           </h2>
