@@ -1,21 +1,21 @@
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+// import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-interface StartPageProps {
-  name: string;
-  examNumber: string;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
+// interface StartPageProps {
+//   name: string;
+//   examNumber: string;
+//   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+// }
 
-const StartPage = ({ name, examNumber, handleChange }: StartPageProps) => {
-  const [openForm, setOpenForm] = useState(false);
+const StartPage = () => {
+  // const [openForm, setOpenForm] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    navigate("/exam");
-  };
+  // const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   navigate("/exam");
+  // };
 
   return (
     <div className="min-h-screen flex flex-col max-w-[1500px] mx-auto items-center justify-center bg-gray-100 text-gray-800">
@@ -31,17 +31,16 @@ const StartPage = ({ name, examNumber, handleChange }: StartPageProps) => {
         <p className="text-lg md:text-xl text-center font-light text-gray-600">
           Click the button below to start your exam
         </p>
-        {!openForm && (
-          <Button
-            className="bg-gray-800 hover:bg-gray-900 text-white px-8 py-3 rounded-lg shadow-lg transition-all duration-300"
-            onClick={() => setOpenForm(true)}
-          >
-            Begin
-          </Button>
-        )}
+
+        <Button
+          className="bg-gray-800 hover:bg-gray-900 text-white px-8 py-3 rounded-lg shadow-lg transition-all duration-300"
+          onClick={() => navigate("/login")}
+        >
+          Begin
+        </Button>
       </div>
 
-      {openForm && (
+      {/* {openForm && (
         <div className="mt-10  mx-auto w-full max-w-md bg-white text-gray-800 rounded-lg shadow-lg p-6">
           <h2 className="text-2xl font-semibold text-center mb-4">
             Enter Your Details
@@ -83,7 +82,7 @@ const StartPage = ({ name, examNumber, handleChange }: StartPageProps) => {
             </Button>
           </form>
         </div>
-      )}
+      )} */}
     </div>
   );
 };
