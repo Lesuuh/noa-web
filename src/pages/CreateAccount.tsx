@@ -1,81 +1,167 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { FcGoogle } from "react-icons/fc";
+import { useForm, SubmitHandler } from "react-hook-form";
 
-interface CreateAccountProps {
-  create: () => void; // Define the type for the `create` prop
+interface FormDetailsProps {
+  name: string;
+  email: string;
+  password: string;
 }
 
-const CreateAccount: React.FC<CreateAccountProps> = ({ create }) => {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    create(); // Call the `create` function passed as a prop
-  };
+const CreateAccount = () => {
   const navigate = useNavigate();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid, isDirty, isSubmitting },
+  } = useForm<FormDetailsProps>({ mode: "onChange" });
+
+  const onSubmit: SubmitHandler<FormDetailsProps> = (data) => {
+    console.log(data);
+  };
+
+  const pageStyle = {
+    backgroundImage: `url('/Computer Center After Dark.jpeg')`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    minHeight: "100vh",
+  };
+
   return (
-    <div>
-      <div className="mt-10  mx-auto w-full max-w-md bg-white text-gray-800 rounded-lg shadow-lg p-6">
-        <h2 className="text-2xl font-semibold text-center mb-4">
-          Create Account
-        </h2>
-        <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
-          <div className="flex flex-col">
-            <label htmlFor="name" className="text-base font-medium">
-              Name:
+    <section
+      style={pageStyle}
+      className="relative flex justify-center items-center w-full"
+    >
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/90" />
+
+      {/* Form Card */}
+      <div className="relative z-10 w-full max-w-md bg-white p-8 rounded-md shadow-lg">
+        {/* Header */}
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-semibold">Get Started</h2>
+          <p className="text-gray-600 text-sm">
+            Create an account with Google or your details
+          </p>
+        </div>
+
+        {/* Google Button */}
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full mb-6 flex items-center justify-center gap-2 border-gray-300 hover:bg-gray-100 transition-all duration-300"
+        >
+          <FcGoogle className="text-xl" />
+          Create Account with Google
+        </Button>
+
+        {/* Divider */}
+        <div className="relative my-6 text-center text-sm">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <span className="relative z-10 bg-white px-2 text-gray-500">
+            Or continue with
+          </span>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium mb-1">
+              Name
             </label>
             <input
-              id="name"
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
               type="text"
-              //   value={name}
-              //   onChange={handleChange}
-              placeholder="Enter your name"
+              placeholder="John Doe"
+              {...register("name", {
+                required: "Name is required",
+                maxLength: 20,
+                minLength: 3,
+              })}
               required
+              className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-200"
             />
+            {errors.name?.message && (
+              <p className="text-sm text-red-500">
+                {errors.name.message as string}
+              </p>
+            )}
           </div>
-          <div className="flex flex-col">
-            <label htmlFor="email" className="text-base font-medium">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium mb-1">
               Email
             </label>
             <input
-              id="email"
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
               type="email"
-              //   value={examNumber}
-              //   onChange={handleChange}
-              placeholder="Email address"
+              placeholder="johndoe@yourmail.com"
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Enter a valid email address",
+                },
+              })}
               required
+              className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-200"
             />
+            {errors.email?.message && (
+              <p className="text-sm text-red-500">
+                {errors.email.message as string}
+              </p>
+            )}
           </div>
-          <div className="flex flex-col">
-            <label htmlFor="examNumber" className="text-base font-medium">
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium mb-1"
+            >
               Password
             </label>
             <input
-              id="password"
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
               type="password"
-              //   value={examNumber}
-              //   onChange={handleChange}
-              placeholder="Create password"
+              placeholder="Create a unique password"
+              {...register("password", {
+                required: "Password is required",
+                pattern: {
+                  value:
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
+                  message:
+                    "Password must be 6+ chars, with uppercase, lowercase, number, and symbol",
+                },
+              })}
               required
+              className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-200"
             />
+            {errors.password?.message && (
+              <p className="text-sm text-red-500">
+                {errors.password.message as string}
+              </p>
+            )}
           </div>
           <Button
             type="submit"
-            className="w-full bg-gray-800 hover:bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-300"
+            disabled={isSubmitting || !isDirty || !isValid}
+            className="w-full px-6 py-3 rounded-md text-white shadow-md transition-all duration-300"
           >
             Create Account
           </Button>
         </form>
 
-        <p className="text-[.9rem] text-right  mt-2">
+        {/* Login Link */}
+        <p className="text-sm text-center mt-4">
           Already have an account?{" "}
-          <span onClick={() => navigate("/login")} className="text-blue-600 ">
+          <span
+            onClick={() => navigate("/")}
+            className="text-blue-600 cursor-pointer hover:underline"
+          >
             Login
           </span>
         </p>
       </div>
-    </div>
+    </section>
   );
 };
 

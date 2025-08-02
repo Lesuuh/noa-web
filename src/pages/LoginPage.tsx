@@ -1,76 +1,126 @@
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
-// import { useState } from "react";
 
-// interface StartPageProps {
-//   name: string;
-//   examNumber: string;
-//   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-// }
-
-interface LoginPageProps {
-  login: () => void;
-}
-
-const LoginPage: React.FC<LoginPageProps> = ({ login }) => {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    login();
-  };
+const LoginPage = () => {
+  const [loginDetails, setLoginDetails] = useState({
+    email: "",
+    password: "",
+  });
   const navigate = useNavigate();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Submitted", loginDetails);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setLoginDetails((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const pageStyle = {
+    backgroundImage: `url('/Computer Center After Dark.jpeg')`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    minHeight: "100vh",
+  };
+
   return (
-    <div>
-      <div className="mt-10  mx-auto w-full max-w-md bg-white text-gray-800 rounded-lg shadow-lg p-6">
-        <h2 className="text-2xl font-semibold text-center mb-4">
-          Login into your account
-        </h2>
-        <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
-          <div className="flex flex-col">
-            <label htmlFor="email" className="text-base font-medium">
+    <section
+      style={pageStyle}
+      className="relative flex justify-center items-center w-full"
+    >
+      <div className="absolute inset-0 bg-black/90" />
+      <div className="relative z-10 w-full max-w-md bg-white p-8 rounded-md shadow-lg">
+        {/* Header */}
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-semibold">Welcome back</h2>
+          <p className="text-gray-600 text-sm">
+            Log in with your Google account
+          </p>
+        </div>
+
+        {/* Google Login Button */}
+        <Button
+          variant="outline"
+          className="w-full mb-6 flex items-center justify-center gap-2"
+        >
+          <FcGoogle className="text-xl" />
+          Login with Google
+        </Button>
+
+        {/* Divider */}
+        <div className="relative my-6 text-center text-sm">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <span className="relative z-10 bg-white px-2 text-gray-500">
+            Or continue with
+          </span>
+        </div>
+
+        {/* Login Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium mb-1">
               Email
             </label>
             <input
               id="email"
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              name="email"
               type="email"
-              //   value={examNumber}
-              //   onChange={handleChange}
+              value={loginDetails.email}
+              onChange={handleChange}
               placeholder="Email address"
               required
+              className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
             />
           </div>
-          <div className="flex flex-col">
-            <label htmlFor="examNumber" className="text-base font-medium">
-              Password
-            </label>
+
+          <div>
+            <div className="flex justify-between items-center">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium mb-1"
+              >
+                Password
+              </label>
+              <p className="text-sm mb-1">Forget your password?</p>
+            </div>
             <input
               id="password"
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              name="password"
               type="password"
-              //   value={examNumber}
-              //   onChange={handleChange}
-              placeholder="Create password"
+              value={loginDetails.password}
+              onChange={handleChange}
+              placeholder="Enter password"
               required
+              className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
             />
           </div>
+
           <Button
             type="submit"
-            className="w-full bg-gray-800 hover:bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-300"
+            className="w-full px-6 py-3 rounded-md shadow-md transition-all duration-300"
           >
             Login
           </Button>
         </form>
-        <p className="text-[.9rem] text-right  mt-2">
+
+        {/* Redirect */}
+        <p className="text-sm text-center mt-4">
           Don't have an account?{" "}
           <span
             onClick={() => navigate("/create-account")}
-            className="text-blue-600 "
+            className="text-blue-600 cursor-pointer hover:underline"
           >
             Create account
           </span>
         </p>
       </div>
-    </div>
+    </section>
   );
 };
 
