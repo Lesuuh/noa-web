@@ -1,9 +1,14 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import { questions } from "../data/sampleQuestions";
-import { QuestionNav } from "../components/QuestionNav";
-import { useNavigate } from "react-router-dom";
+import { ChevronLeft, ChevronRight, Clock } from "lucide-react"; // Using Lucide icons
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { useNavigate } from "react-router-dom";
+import { questions } from "@/data/sampleQuestions";
+import { QuestionNav } from "@/components/QuestionNav";
 
 interface ExamState {
   currentQuestion: number;
@@ -13,19 +18,22 @@ interface ExamState {
 }
 
 interface ExamPageProps {
-  name: string;
-  examNumber: string;
+  name?: string; // Made optional for default props
+  examNumber?: string; // Made optional for default props
 }
 
-const ExamPage = ({ name, examNumber }: ExamPageProps) => {
-  const EXAM_TIME = 30 * 60;
+const EXAM_TIME = 60 * 60;
+
+const ExamPage = ({
+  name = "John Doe",
+  examNumber = "NOA/2025/001",
+}: ExamPageProps) => {
   const [examState, setExamState] = useState<ExamState>({
     currentQuestion: 0,
     answers: {},
     timeRemaining: EXAM_TIME,
     isSubmitted: false,
   });
-
   const navigate = useNavigate();
 
   const currentQuestion = questions[examState.currentQuestion];
@@ -35,7 +43,7 @@ const ExamPage = ({ name, examNumber }: ExamPageProps) => {
     if (examState.currentQuestion < questions.length - 1) {
       setExamState((prevState) => ({
         ...prevState,
-        currentQuestion: examState.currentQuestion + 1,
+        currentQuestion: prevState.currentQuestion + 1,
       }));
     }
   };
@@ -44,7 +52,7 @@ const ExamPage = ({ name, examNumber }: ExamPageProps) => {
     if (examState.currentQuestion > 0) {
       setExamState((prevState) => ({
         ...prevState,
-        currentQuestion: examState.currentQuestion - 1,
+        currentQuestion: prevState.currentQuestion - 1,
       }));
     }
   };
@@ -69,7 +77,8 @@ const ExamPage = ({ name, examNumber }: ExamPageProps) => {
       },
       0
     );
-    navigate("/result", { state: { score } });
+    setExamState((prevState) => ({ ...prevState, isSubmitted: true }));
+    navigate(`/result?score=${score}`); // Navigate to result page with score
   };
 
   const navigateQuestion = (index: number) => {
@@ -79,110 +88,127 @@ const ExamPage = ({ name, examNumber }: ExamPageProps) => {
     }));
   };
 
-  const initialTime = 75;
-  const [timeRemaining, setTimeRemaining] = useState(initialTime * 60);
-
   useEffect(() => {
-    if (timeRemaining <= 0) {
+    if (examState.timeRemaining <= 0 && !examState.isSubmitted) {
       handleSubmit();
+      return;
     }
-    const countDown = setInterval(() => {
-      setTimeRemaining((prevTime) => prevTime - 1);
-    }, 1000);
-    return () => clearInterval(countDown);
-  }, [timeRemaining]);
 
-  const minutes = Math.floor(timeRemaining / 60);
-  const seconds = timeRemaining % 60;
+    const countDown = setInterval(() => {
+      setExamState((prevState) => ({
+        ...prevState,
+        timeRemaining: prevState.timeRemaining - 1,
+      }));
+    }, 1000);
+
+    return () => clearInterval(countDown);
+  }, [examState.timeRemaining, examState.isSubmitted, handleSubmit]); // Depend on timeRemaining and isSubmitted
+
+  const minutes = Math.floor(examState.timeRemaining / 60);
+  const seconds = examState.timeRemaining % 60;
 
   return (
-    <div className="min-h-screen max-w-md md:max-w-[1400px] w-full mx-auto bg-gray-100 text-gray-800">
-      <header className="bg-white shadow-md py-4 px-6 flex justify-between items-center">
-        <div>
-          <img
-            src="https://noa.gov.ng/assets/logo-nW5qDcRC.svg"
-            alt="NOA Logo"
-            className="w-40"
-          />
-          <h2 className="text-xl font-bold mt-2">
+    <div className="min-h-screen w-full max-w-7xl mx-auto bg-gray-50 text-gray-800 flex flex-col">
+      <header className="bg-white shadow-sm py-4 px-6 flex flex-col md:flex-row justify-between items-center sticky top-0 z-10 border-b border-gray-200">
+        <div className="flex items-center gap-4 mb-4 md:mb-0">
+          <img src="/public/noa.jpg" alt="NOA Logo" className="h-10 w-auto" />
+          <h2 className="text-xl font-bold text-gray-900">
             2025 NOA Promotional Examination
           </h2>
         </div>
-        <div className="text-right">
-          <p className="font-semibold">
+        <div className="flex flex-col items-end gap-2">
+          <p className="font-medium text-sm text-gray-700">
             <span className="font-light">Name: </span>
             {name}
           </p>
-          <p className="font-semibold">
+          <p className="font-medium text-sm text-gray-700">
             <span className="font-light">Exam Number: </span>
             {examNumber}
           </p>
           <div className="flex items-center gap-4 mt-2">
-            <p className="font-bold text-lg bg-red-500 text-white px-4 py-2 rounded-lg">
-              {String(minutes).padStart(2, "0")}:
-              {String(seconds).padStart(2, "0")}
-            </p>
+            <div className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-md text-lg font-bold">
+              <Clock className="w-5 h-5" />
+              <span>
+                {String(minutes).padStart(2, "0")}:
+                {String(seconds).padStart(2, "0")}
+              </span>
+            </div>
             <Button
               onClick={handleSubmit}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-md"
+              disabled={examState.isSubmitted}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md shadow-md transition-colors duration-200"
             >
-              Submit
+              {examState.isSubmitted ? "Submitted" : "Submit Exam"}
             </Button>
           </div>
         </div>
       </header>
-      <main className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg mt-8 p-6">
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-2">
-            Question {currentQuestion.id}:
-          </h3>
-          <p className="text-gray-700">{currentQuestion.question}</p>
-        </div>
-        <div className="mb-6">
-          <ul className="space-y-4">
-            {currentQuestionOptions.map((option, index) => (
-              <li key={index} className="flex items-center">
-                <input
-                  type="radio"
-                  name={`question-${currentQuestion.id}`}
-                  value={index}
-                  checked={
+
+      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8">
+        <Card className="shadow-lg rounded-lg">
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold text-gray-900">
+              Question {currentQuestion.id}:
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-700 mb-6 text-lg">
+              {currentQuestion.question}
+            </p>
+            <RadioGroup
+              value={
+                examState.answers[examState.currentQuestion]?.toString() || ""
+              }
+              onValueChange={(value) => handleOptionChange(Number(value))}
+              className="space-y-4"
+            >
+              {currentQuestionOptions.map((option, index) => (
+                <div
+                  key={index}
+                  className="flex items-center p-4 border rounded-md hover:bg-gray-50 cursor-pointer transition-colors duration-200"
+                  data-state={
                     examState.answers[examState.currentQuestion] === index
+                      ? "checked"
+                      : "unchecked"
                   }
-                  onChange={() => handleOptionChange(index)}
-                  className="mr-3"
-                />
-                <label className="text-gray-700">{option}</label>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="flex justify-between">
+                  onClick={() => handleOptionChange(index)}
+                >
+                  <RadioGroupItem
+                    value={index.toString()}
+                    id={`option-${currentQuestion.id}-${index}`}
+                    className="mr-3"
+                  />
+                  <Label
+                    htmlFor={`option-${currentQuestion.id}-${index}`}
+                    className="text-gray-800 text-base cursor-pointer flex-1"
+                  >
+                    {option}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-between mt-8">
           <Button
             onClick={handlePrevious}
             disabled={examState.currentQuestion === 0}
-            className={`px-6 py-2 rounded-lg shadow-md ${
-              examState.currentQuestion === 0
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
-            }`}
+            className="px-6 py-2 rounded-md shadow-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <FaArrowLeft className="mr-2" /> Previous
+            <ChevronLeft className="mr-2 h-4 w-4" /> Previous
           </Button>
           <Button
             onClick={handleNext}
             disabled={examState.currentQuestion === questions.length - 1}
-            className={`px-6 py-2 rounded-lg shadow-md ${
-              examState.currentQuestion === questions.length - 1
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
-            }`}
+            className="px-6 py-2 rounded-md shadow-md bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Next <FaArrowRight className="ml-2" />
+            Next <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
       </main>
-      <footer className="mt-8 text-center text-gray-600">
+
+      <footer className="mt-8 py-6 bg-white border-t border-gray-200 shadow-sm">
         <QuestionNav
           totalQuestions={questions.length}
           currentQuestion={examState.currentQuestion}

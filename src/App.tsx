@@ -4,6 +4,7 @@ import LoginPage from "./pages/LoginPage";
 import CreateAccount from "./pages/CreateAccount";
 import Dashboard from "./pages/Dashboard";
 import AuthGuard from "./components/AuthGuard";
+import ExamPage from "./pages/ExamPage";
 
 const App = () => {
   return (
@@ -19,10 +20,7 @@ const App = () => {
             </AuthGuard>
           }
         />
-        <Route
-          path="/exam"
-          // element={<ExamPage name={name} examNumber={examNumber} />}
-        />
+        <Route path="/exam" element={<ExamPage />} />
         <Route path="result" element={<ResultPage />} />
       </Routes>
     </div>
