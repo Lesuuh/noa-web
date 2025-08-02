@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react"; // Using Lucide icons
 import { Button } from "@/components/ui/button";
@@ -21,6 +19,7 @@ interface ExamPageProps {
   name?: string; // Made optional for default props
   examNumber?: string; // Made optional for default props
 }
+
 
 const EXAM_TIME = 60 * 60;
 

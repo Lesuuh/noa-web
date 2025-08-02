@@ -1750,3 +1750,28 @@ export const questions = [
   //   correctAnswer: 2,
   // },
 ];
+
+
+// Function to seed questions to Firestore
+async function seedQuestions() {
+  try {
+    const questionsCollection = collection(db, 'questions');
+
+    // Loop through the questions array and add each question to Firestore
+    for (const question of questions) {
+      await addDoc(questionsCollection, {
+        id: question.id,
+        question: question.question,
+        options: question.options,
+        correctAnswer: question.correctAnswer,
+      });
+      console.log(`Added question ${question.id}`);
+    }
+
+    console.log('All questions seeded successfully!');
+  } catch (error) {
+    console.error('Error seeding questions:', error);
+  }
+}
+
+// Run the seeding function
