@@ -1,23 +1,32 @@
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { login } from "@/hooks/useAuth";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 
+interface LoginDetailsProps {
+  email: string;
+  password: string;
+}
 const LoginPage = () => {
-  const [loginDetails, setLoginDetails] = useState({
-    email: "",
-    password: "",
-  });
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Submitted", loginDetails);
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isValid, isDirty },
+    setError,
+  } = useForm<LoginDetailsProps>({
+    mode: "onChange",
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setLoginDetails((prev) => ({ ...prev, [name]: value }));
+  const onSubmit: SubmitHandler<LoginDetailsProps> = async (data) => {
+    const user = await login(data, setError);
+    if (user) {
+      navigate("/dashboard");
+    } else {
+      navigate("/");
+    }
   };
 
   const pageStyle = {
@@ -62,21 +71,23 @@ const LoginPage = () => {
         </div>
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium mb-1">
               Email
             </label>
             <input
-              id="email"
-              name="email"
               type="email"
-              value={loginDetails.email}
-              onChange={handleChange}
-              placeholder="Email address"
+              {...register("email", { required: "Enter your name" })}
+              placeholder="johndoe@yourmail.com"
               required
               className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
             />
+            {errors.email?.message && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.email.message as string}
+              </p>
+            )}
           </div>
 
           <div>
@@ -90,19 +101,29 @@ const LoginPage = () => {
               <p className="text-sm mb-1">Forget your password?</p>
             </div>
             <input
-              id="password"
-              name="password"
               type="password"
-              value={loginDetails.password}
-              onChange={handleChange}
+              {...register("password", { required: "Enter your password" })}
               placeholder="Enter password"
               required
               className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
             />
+            {errors.password?.message && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.password.message as string}
+              </p>
+            )}
+          </div>
+          <div>
+            {errors.root?.message && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.root.message as string}
+              </p>
+            )}
           </div>
 
           <Button
             type="submit"
+            disabled={isSubmitting || !isValid || !isDirty}
             className="w-full px-6 py-3 rounded-md shadow-md transition-all duration-300"
           >
             Login
