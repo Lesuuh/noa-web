@@ -22,6 +22,7 @@ import {
   Trophy,
   User2Icon,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
 const scoreTrendData = [
@@ -59,12 +60,16 @@ const Dashboard = () => {
           <div>{user?.photoURL || <User2Icon />}</div>
         </div>
         <div className="mt-4 w-full flex items-center justify-between gap-4">
-          <Button className="flex-1 py-6">
-            <BookKey /> Start New Test
-          </Button>
-          <Button variant="outline" className="flex-1 py-6">
-            <TimerIcon /> Resume previous test
-          </Button>
+          <Link to={"/exam"} className="flex-1">
+            <Button className="py-6 w-full">
+              <BookKey /> Start New Test
+            </Button>
+          </Link>
+          <Link to={"/resume"} className="flex-1">
+            <Button variant="outline" className="w-full py-6">
+              <TimerIcon /> Resume previous test
+            </Button>
+          </Link>
         </div>
       </section>
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react"; // Using Lucide icons
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,37 +7,26 @@ import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { questions } from "@/data/sampleQuestions";
 import { QuestionNav } from "@/components/QuestionNav";
-
-interface ExamState {
-  currentQuestion: number;
-  answers: Record<number, number>;
-  timeRemaining: number;
-  isSubmitted: boolean;
-}
+import { useExamState } from "@/contexts/ExamStateContext";
 
 interface ExamPageProps {
-  name?: string; // Made optional for default props
-  examNumber?: string; // Made optional for default props
+  name?: string;
+  examNumber?: string;
 }
-
-
-const EXAM_TIME = 60 * 60;
 
 const ExamPage = ({
   name = "John Doe",
   examNumber = "NOA/2025/001",
 }: ExamPageProps) => {
-  const [examState, setExamState] = useState<ExamState>({
-    currentQuestion: 0,
-    answers: {},
-    timeRemaining: EXAM_TIME,
-    isSubmitted: false,
-  });
-  const navigate = useNavigate();
+  const { examState, setExamState } = useExamState();
 
+  const navigate = useNavigate();
+  const test = useExamState();
+  console.log(test);
   const currentQuestion = questions[examState.currentQuestion];
   const currentQuestionOptions = currentQuestion.options;
 
+  // move to next question
   const handleNext = () => {
     if (examState.currentQuestion < questions.length - 1) {
       setExamState((prevState) => ({
@@ -47,6 +36,7 @@ const ExamPage = ({
     }
   };
 
+  // go to previous question
   const handlePrevious = () => {
     if (examState.currentQuestion > 0) {
       setExamState((prevState) => ({
@@ -67,17 +57,18 @@ const ExamPage = ({
   };
 
   const handleSubmit = () => {
-    const score = Object.entries(examState.answers).reduce(
-      (acc, [questionIndex, answer]) => {
-        return (
-          acc +
-          (questions[Number(questionIndex)].correctAnswer === answer ? 1 : 0)
-        );
-      },
-      0
+    let score = 0;
+    Object.entries(examState.answers).forEach(
+      ([questionIndex, selectedAnswer]) => {
+        const correctAnswer = questions[Number(questionIndex)].correctAnswer;
+        if (selectedAnswer === correctAnswer) {
+          score += 1;
+        }
+      }
     );
-    setExamState((prevState) => ({ ...prevState, isSubmitted: true }));
-    navigate(`/result?score=${score}`); // Navigate to result page with score
+    setExamState((prevState) => ({ ...prevState, score, isSubmitted: true }));
+
+    navigate(`/result`);
   };
 
   const navigateQuestion = (index: number) => {
@@ -101,11 +92,12 @@ const ExamPage = ({
     }, 1000);
 
     return () => clearInterval(countDown);
-  }, [examState.timeRemaining, examState.isSubmitted, handleSubmit]); // Depend on timeRemaining and isSubmitted
+  }, [examState.timeRemaining, examState.isSubmitted]); // Depend on timeRemaining and isSubmitted
+
+  console.log(examState);
 
   const minutes = Math.floor(examState.timeRemaining / 60);
   const seconds = examState.timeRemaining % 60;
-
   return (
     <div className="min-h-screen w-full max-w-7xl mx-auto bg-gray-50 text-gray-800 flex flex-col">
       <header className="bg-white shadow-sm py-4 px-6 flex flex-col md:flex-row justify-between items-center sticky top-0 z-10 border-b border-gray-200">

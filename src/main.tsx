@@ -5,12 +5,15 @@ import App from "./App.tsx";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext.tsx";
 import { StrictMode } from "react";
+import { ExamContextProvider } from "./contexts/ExamStateContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <App />
+        <ExamContextProvider>
+          <App />
+        </ExamContextProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>
