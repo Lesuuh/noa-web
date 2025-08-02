@@ -58,14 +58,19 @@ export const login = async (
 };
 
 export const createAccount = async (
-  createAccountEmail: string,
-  createAccountPassword: string
+  createAccountDetails: {
+    email: string;
+    password: string;
+  },
+  setError: UseFormSetError<any>
 ) => {
   try {
+    const { email, password } = createAccountDetails;
+    console.log(createAccountDetails);
     const userCredential = await createUserWithEmailAndPassword(
       auth,
-      createAccountEmail,
-      createAccountPassword
+      email,
+      password
     );
     return userCredential.user;
   } catch (error: unknown) {
@@ -76,16 +81,37 @@ export const createAccount = async (
 
       switch (err.code) {
         case "auth/email-already-in-use":
-          throw new Error("Email already in use. Please log in instead.");
+          setError("email", {
+            type: "manual",
+            message: "Email already in use. Please log in instead.",
+          });
+          break;
+
         case "auth/invalid-email":
-          throw new Error("Invalid email address.");
+          setError("email", {
+            type: "manual",
+            message: "Invalid email address.",
+          });
+          break;
+
         case "auth/weak-password":
-          throw new Error("Password should be at least 6 characters.");
+          setError("password", {
+            type: "manual",
+            message: "Password should be at least 6 characters.",
+          });
+          break;
+
         default:
-          throw new Error("Account creation failed. Please try again later.");
+          setError("root", {
+            type: "server",
+            message: "Account creation failed. Please try again later.",
+          });
       }
     } else {
-      throw new Error("Unexpected error occurred during sign up.");
+      setError("root", {
+        type: "server",
+        message: "Unexpected error occurred during sign up.",
+      });
     }
   }
 };

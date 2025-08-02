@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { createAccount } from "@/hooks/useAuth";
 
 interface FormDetailsProps {
   name: string;
@@ -16,10 +17,14 @@ const CreateAccount = () => {
     register,
     handleSubmit,
     formState: { errors, isValid, isDirty, isSubmitting },
+    setError,
   } = useForm<FormDetailsProps>({ mode: "onChange" });
 
-  const onSubmit: SubmitHandler<FormDetailsProps> = (data) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<FormDetailsProps> = async (data) => {
+    const user = await createAccount(data, setError);
+    if (user) {
+      navigate("/dashboard");
+    }
   };
 
   const pageStyle = {
