@@ -1,8 +1,9 @@
-import { auth } from "@/firebase";
+import { auth, db } from "@/firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 import { UseFormSetError } from "react-hook-form";
 
 export const login = async (
@@ -61,18 +62,29 @@ export const createAccount = async (
   createAccountDetails: {
     email: string;
     password: string;
+    name: string;
   },
   setError: UseFormSetError<any>
 ) => {
   try {
-    const { email, password } = createAccountDetails;
-    console.log(createAccountDetails);
+    const { email, password, name } = createAccountDetails;
+
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       email,
       password
     );
-    return userCredential.user;
+
+    const user = userCredential.user;
+
+    // 📝 Create user document in Firestore
+    await setDoc(doc(db, "users", user.uid), {
+      name,
+      email,
+      createdAt: new Date().toISOString(), // or use serverTimestamp()
+    });
+
+    return user;
   } catch (error: unknown) {
     console.error("Error signing up:", error);
 

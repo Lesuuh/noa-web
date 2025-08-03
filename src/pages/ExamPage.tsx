@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { ChevronLeft, ChevronRight, Clock } from "lucide-react"; // Using Lucide icons
+import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { questions } from "@/data/sampleQuestions";
 import { QuestionNav } from "@/components/QuestionNav";
 import { useExamState } from "@/contexts/ExamStateContext";
+import { saveTestHistory } from "@/services/saveTestHistory";
 
 interface ExamPageProps {
   name?: string;
@@ -56,6 +57,9 @@ const ExamPage = ({
     }));
   };
 
+  const timeUsed = 60 * 60 - examState.timeRemaining;
+  const timeUsedInMinutes = timeUsed / 60;
+
   const handleSubmit = () => {
     let score = 0;
     Object.entries(examState.answers).forEach(
@@ -67,7 +71,7 @@ const ExamPage = ({
       }
     );
     setExamState((prevState) => ({ ...prevState, score, isSubmitted: true }));
-
+    saveTestHistory(score, timeUsedInMinutes.toFixed(0));
     navigate(`/result`);
   };
 

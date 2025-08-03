@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/chart";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
+import { fetchTestHistory } from "@/services/fetchAllTestHistory";
 import {
   ArrowRight,
   BookKey,
@@ -22,38 +23,109 @@ import {
   Trophy,
   User2Icon,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import Confetti from "react-confetti";
+import { useWindowSize } from "@react-hook/window-size";
 
-const scoreTrendData = [
-  { month: "Jan", score: 65 },
-  { month: "Feb", score: 70 },
-  { month: "Mar", score: 72 },
-  { month: "Apr", score: 78 },
-  { month: "May", score: 85 },
-  { month: "Jun", score: 82 },
-  { month: "Jul", score: 88 },
-];
-
-const pastTests = [
-  { date: "26 July", score: 84, time: "90 mins" },
-  { date: "25 July", score: 73, time: "100 mins" },
-  { date: "24 July", score: 91, time: "75 mins" },
-  { date: "23 July", score: 68, time: "110 mins" },
-];
+// const scoreTrendData = [
+//   { month: "Jan", score: 65 },
+//   { month: "Feb", score: 70 },
+//   { month: "Mar", score: 72 },
+//   { month: "Apr", score: 78 },
+//   { month: "May", score: 85 },
+//   { month: "Jun", score: 82 },
+//   { month: "Jul", score: 88 },
+// ];
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const [history, setHistory] = useState<any[]>([]);
+  const [width, height] = useWindowSize();
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  const totalTestTaken = history.length;
+  const totalScore = history.reduce((acc, test) => acc + test.score, 0);
+  const averageScore = totalTestTaken ? totalScore / totalTestTaken : 0;
+  const highestScore = history.length
+    ? Math.max(...history.map((test) => test.score))
+    : 0;
+  const totalTime = history.reduce((acc, test) => acc + test.time, 0);
+  const averageTime = totalTestTaken
+    ? (totalTime / totalTestTaken).toFixed(1)
+    : "0";
+
+  const scores = history.map((test) => test.score);
+  const scoreTrendData = scores.map((score, index) => ({
+    test: `Test ${index + 1}`,
+    score: score,
+  }));
+
+  const highScores = history.filter((test) => test.score > 90);
+  const scoreAbove90 = () => {
+    let progress = 0;
+    if (highScores.length > 3) {
+      return (progress = 100);
+    } else if (highScores.length === 2) {
+      return (progress = 66);
+    } else if (highScores.length === 1) {
+      return (progress = 33);
+    } else {
+      return 0;
+    }
+    return progress;
+  };
+  const toComplete5Challenges = () => {
+    if (totalTestTaken > 4) {
+      return 100;
+    } else if (totalTestTaken === 4) {
+      return 80;
+    } else if (totalTestTaken === 3) {
+      return 60;
+    } else if (totalTestTaken === 2) {
+      return 40;
+    } else if (totalTestTaken === 1) {
+      return 20;
+    } else {
+      return 0;
+    }
+  };
+
+  if (totalTestTaken === 5) {
+    setShowConfetti(true);
+  }
+
+  useEffect(() => {
+    if (showConfetti) {
+      const timeOut = setTimeout(() => {
+        setShowConfetti(false);
+      }, 5000);
+      return () => clearTimeout(timeOut);
+    }
+  }, [showConfetti]);
+  useEffect(() => {
+    const fetchingTestHistory = async () => {
+      try {
+        const testHistory = await fetchTestHistory();
+        setHistory(testHistory);
+      } catch (err) {
+        console.error("Failed to fetch history:", err);
+      }
+    };
+
+    fetchingTestHistory();
+  }, []);
 
   return (
-    <main className="flex flex-col w-full min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
-      <section className="shadow-md rounded-md p-5 md:p-10 w-full border max-w-7xl mx-auto">
+    <main className="flex flex-col w-full min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 md:p-6 lg:p-8">
+      <section className="shadow-md rounded-md p-5 md:p-10 w-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 max-w-7xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-3xl md:text-4xl font-semibold">
               Hello, Lesuuh
             </h2>
-            <p className="text-gray-600 mt-1 text-sm ">
+            <p className="text-gray-600 dark:text-gray-400 mt-1 text-sm">
               Welcome back, Ready for your next challenge?
             </p>
           </div>
@@ -74,39 +146,41 @@ const Dashboard = () => {
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 w-full max-w-7xl mx-auto">
-        <Card>
+        <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
           <CardHeader>
             <CardTitle>📊 Your Stats</CardTitle>
-            <CardDescription>Overview of your performance.</CardDescription>
+            <CardDescription className="text-gray-600 dark:text-gray-400">
+              Overview of your performance.
+            </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Total Tests Taken:</span>
-              <span className="text-lg font-semibold">15</span>
+              <span className="text-lg font-semibold">{totalTestTaken}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Average Score:</span>
-              <span className="text-lg font-semibold">78%</span>
+              <span className="text-lg font-semibold">
+                {averageScore.toFixed(1)}%
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Highest Score:</span>
-              <span className="text-lg font-semibold">95%</span>
+              <span className="text-lg font-semibold">{highestScore}%</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">
-                Average Time Per Test:
+                Average Completion Time:
               </span>
-              <span className="text-lg font-semibold">85 mins</span>
+              <span className="text-lg font-semibold">{averageTime} mins</span>
             </div>
           </CardContent>
         </Card>
 
-        {/* charts */}
-
-        <Card>
+        <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
           <CardHeader>
             <CardTitle>📈 Score Trend</CardTitle>
-            <CardDescription>
+            <CardDescription className="text-gray-600 dark:text-gray-400">
               Your scores over the last few months.
             </CardDescription>
           </CardHeader>
@@ -123,14 +197,11 @@ const Dashboard = () => {
               <LineChart
                 accessibilityLayer
                 data={scoreTrendData}
-                margin={{
-                  left: 12,
-                  right: 12,
-                }}
+                margin={{ left: 12, right: 12 }}
               >
                 <CartesianGrid vertical={false} />
                 <XAxis
-                  dataKey="month"
+                  dataKey="test"
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
@@ -152,13 +223,8 @@ const Dashboard = () => {
                   type="natural"
                   stroke="blue"
                   strokeWidth={2}
-                  dot={{
-                    fill: "blue",
-                  }}
-                  activeDot={{
-                    r: 6,
-                    fill: "blue",
-                  }}
+                  dot={{ fill: "blue" }}
+                  activeDot={{ r: 6, fill: "blue" }}
                 />
               </LineChart>
             </ChartContainer>
@@ -167,22 +233,26 @@ const Dashboard = () => {
       </section>
 
       <section className="max-w-7xl w-full mx-auto mt-10">
-        <Card>
+        <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
           <CardHeader>
             <CardTitle>Test History</CardTitle>
-            <CardDescription>Review your test history</CardDescription>
+            <CardDescription className="text-gray-600 dark:text-gray-400">
+              Review your test history
+            </CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4 divide-y">
-            {pastTests.map((test, idx) => (
+          <CardContent className="grid gap-4 divide-y divide-gray-200 dark:divide-gray-700">
+            {history?.map((test, idx) => (
               <div
                 key={idx}
                 className="flex items-center justify-between border-b-1 last:border-b-0 pb-2 last:pb-0"
               >
                 <div>
                   <h3 className="font-medium">
-                    {test.date} - {test.score}%{" "}
+                    {test.date} - {test.score}%
                   </h3>
-                  <p className="text-gray-600 text-sm">{test.time}</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">
+                    {test.time} mins used
+                  </p>
                 </div>
                 <Button variant="secondary">
                   Review <ArrowRight />
@@ -192,12 +262,12 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </section>
+
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl w-full mx-auto mt-7">
-        {/* User Info / Settings */}
-        <Card>
+        <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
           <CardHeader>
             <CardTitle>⚙️ Settings</CardTitle>
-            <CardDescription>
+            <CardDescription className="text-gray-600 dark:text-gray-400">
               Manage your profile and preferences.
             </CardDescription>
           </CardHeader>
@@ -217,30 +287,32 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Badges or Achievements */}
-        <Card>
+        <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
           <CardHeader>
             <CardTitle>🏆 Achievements</CardTitle>
-            <CardDescription>Milestones you've reached.</CardDescription>
+            <CardDescription className="text-gray-600 dark:text-gray-400">
+              Milestones you've reached.
+            </CardDescription>
           </CardHeader>
+          {showConfetti && <Confetti width={width} height={height} />}
           <CardContent className="grid gap-4">
             <div className="flex items-center gap-3">
               <Trophy className="h-6 w-6 text-yellow-500" />
-              <div>
+              <div className="w-full">
                 <p className="font-medium">Completed 5 Tests</p>
-                <Progress value={100} className="h-2" />
+                <Progress value={toComplete5Challenges()} className="h-2" />
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Trophy className="h-6 w-6 text-blue-500" />
-              <div>
+              <div className="w-full">
                 <p className="font-medium">Scored above 90% three times</p>
-                <Progress value={66} className="h-2" />
+                <Progress value={scoreAbove90()} className="h-2" />
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Trophy className="h-6 w-6 text-green-500" />
-              <div>
+              <div className="w-full">
                 <p className="font-medium">First Perfect Score</p>
                 <Progress value={0} className="h-2" />
               </div>
@@ -248,11 +320,12 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Support / Feedback */}
-        <Card>
+        <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
           <CardHeader>
             <CardTitle>❓ Help</CardTitle>
-            <CardDescription>Need assistance or have feedback?</CardDescription>
+            <CardDescription className="text-gray-600 dark:text-gray-400">
+              Need assistance or have feedback?
+            </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-2">
             <Button variant="ghost" className="justify-start">

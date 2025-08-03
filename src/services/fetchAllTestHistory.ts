@@ -1,0 +1,12 @@
+import { auth, db } from "@/firebase";
+import { collection, getDocs } from "firebase/firestore";
+
+export const fetchTestHistory = async () => {
+  const user = auth.currentUser;
+  if (!user) throw new Error("User not logged in");
+
+  const testHistoryRef = collection(db, "users", user.uid, "testHistory");
+  const snapshot = await getDocs(testHistoryRef);
+
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+};
