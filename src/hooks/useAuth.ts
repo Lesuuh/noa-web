@@ -2,9 +2,12 @@ import { auth, db } from "@/firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signOut,
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { UseFormSetError } from "react-hook-form";
+import { NavigateFunction } from "react-router-dom";
+import { toast } from "sonner";
 
 export const login = async (
   loginDetails: { email: string; password: string },
@@ -17,6 +20,8 @@ export const login = async (
       email,
       password
     );
+
+    toast.success("Logged in successfully");
     return userCredential.user;
   } catch (error: unknown) {
     console.error("Login error:", error);
@@ -77,13 +82,13 @@ export const createAccount = async (
 
     const user = userCredential.user;
 
-    // 📝 Create user document in Firestore
     await setDoc(doc(db, "users", user.uid), {
       name,
       email,
-      createdAt: new Date().toISOString(), // or use serverTimestamp()
+      createdAt: new Date().toISOString(),
     });
 
+    toast.success("Account created successfully");
     return user;
   } catch (error: unknown) {
     console.error("Error signing up:", error);
@@ -125,5 +130,16 @@ export const createAccount = async (
         message: "Unexpected error occurred during sign up.",
       });
     }
+  }
+};
+
+export const logout = async (navigate: NavigateFunction) => {
+  try {
+    await signOut(auth);
+    toast.success("Logged out successfully");
+    navigate("/");
+  } catch (error) {
+    console.error("Error signing out", error);
+    toast.error("Failed to log out. Please try again.");
   }
 };

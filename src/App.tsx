@@ -5,8 +5,10 @@ import CreateAccount from "./pages/CreateAccount";
 import Dashboard from "./pages/Dashboard";
 import AuthGuard from "./components/AuthGuard";
 import ExamPage from "./pages/ExamPage";
+import { toast } from "sonner";
 
 const App = () => {
+  toast("Testing");
   return (
     <div className="">
       <Routes>

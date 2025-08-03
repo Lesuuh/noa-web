@@ -24,20 +24,11 @@ import {
   User2Icon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import Confetti from "react-confetti";
 import { useWindowSize } from "@react-hook/window-size";
-
-// const scoreTrendData = [
-//   { month: "Jan", score: 65 },
-//   { month: "Feb", score: 70 },
-//   { month: "Mar", score: 72 },
-//   { month: "Apr", score: 78 },
-//   { month: "May", score: 85 },
-//   { month: "Jun", score: 82 },
-//   { month: "Jul", score: 88 },
-// ];
+import { logout } from "@/hooks/useAuth";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -116,6 +107,11 @@ const Dashboard = () => {
 
     fetchingTestHistory();
   }, []);
+
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    logout(navigate);
+  };
 
   return (
     <main className="flex flex-col w-full min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 md:p-6 lg:p-8">
@@ -279,6 +275,7 @@ const Dashboard = () => {
               <Settings className="mr-2 h-4 w-4" /> Change Password
             </Button>
             <Button
+              onClick={handleLogout}
               variant="ghost"
               className="justify-start text-red-500 hover:text-red-600"
             >
