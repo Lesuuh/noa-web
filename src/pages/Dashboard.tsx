@@ -248,7 +248,7 @@ const Dashboard = () => {
         </Card>
       </section>
 
-      <section className="max-w-7xl w-full mx-auto mt-10">
+      <section className="max-w-7xl w-full mx-auto mt-6">
         <Card className="bg-gray-800 border border-gray-700">
           <CardHeader>
             <CardTitle>Test History</CardTitle>
