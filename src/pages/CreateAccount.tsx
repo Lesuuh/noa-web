@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { createAccount } from "@/hooks/useAuth";
+import { useState } from "react";
 
 interface FormDetailsProps {
   name: string;
@@ -12,6 +13,7 @@ interface FormDetailsProps {
 
 const CreateAccount = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -21,7 +23,7 @@ const CreateAccount = () => {
   } = useForm<FormDetailsProps>({ mode: "onChange" });
 
   const onSubmit: SubmitHandler<FormDetailsProps> = async (data) => {
-    const user = await createAccount(data, setError);
+    const user = await createAccount(data, setError, setLoading);
     if (user) {
       navigate("/dashboard");
     }
@@ -148,10 +150,10 @@ const CreateAccount = () => {
           </div>
           <Button
             type="submit"
-            disabled={isSubmitting || !isDirty || !isValid}
+            disabled={isSubmitting || !isDirty || !isValid || loading}
             className="w-full px-6 py-3 rounded-md text-white shadow-md transition-all duration-300"
           >
-            Create Account
+            {loading ? "Signing up..." : "Create Account"}
           </Button>
         </form>
 

@@ -5,25 +5,20 @@ import CreateAccount from "./pages/CreateAccount";
 import Dashboard from "./pages/Dashboard";
 import AuthGuard from "./components/AuthGuard";
 import ExamPage from "./pages/ExamPage";
-import { toast } from "sonner";
+import NotFound from "./pages/NotFound";
 
 const App = () => {
-  toast("Testing");
   return (
-    <div className="">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100">
       <Routes>
         <Route path="/create-account" element={<CreateAccount />} />
         <Route path="/" element={<LoginPage />} />
-        <Route
-          path="/dashboard"
-          element={
-            <AuthGuard>
-              <Dashboard />
-            </AuthGuard>
-          }
-        />
-        <Route path="/exam" element={<ExamPage />} />
-        <Route path="result" element={<ResultPage />} />
+        <Route element={<AuthGuard />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/exam" element={<ExamPage />} />
+          <Route path="/result" element={<ResultPage />} />
+        </Route>
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
   );

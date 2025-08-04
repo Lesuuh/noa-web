@@ -5,11 +5,15 @@ export interface ExamState {
   isSubmitted: boolean;
 }
 
-
 export interface Question {
-    id: number;
-    question: string;
-    options: string[];
-    correctAnswer: number;
-  }
-  
+  id: number;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+}
+
+export type UserDetails = {
+  name: string;
+  email: string;
+  createdAt: string;
+};

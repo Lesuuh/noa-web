@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { login } from "@/hooks/useAuth";
+import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +11,7 @@ interface LoginDetailsProps {
 }
 const LoginPage = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -21,7 +23,7 @@ const LoginPage = () => {
   });
 
   const onSubmit: SubmitHandler<LoginDetailsProps> = async (data) => {
-    const user = await login(data, setError);
+    const user = await login(data, setError, setLoading);
     if (user) {
       navigate("/dashboard");
     } else {
@@ -78,7 +80,7 @@ const LoginPage = () => {
             </label>
             <input
               type="email"
-              {...register("email", { required: "Enter your name" })}
+              {...register("email", { required: "Enter your email" })}
               placeholder="johndoe@yourmail.com"
               required
               className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
@@ -123,10 +125,10 @@ const LoginPage = () => {
 
           <Button
             type="submit"
-            disabled={isSubmitting || !isValid || !isDirty}
+            disabled={isSubmitting || !isValid || !isDirty || loading}
             className="w-full px-6 py-3 rounded-md shadow-md transition-all duration-300"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </Button>
         </form>
 

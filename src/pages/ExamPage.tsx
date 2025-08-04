@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,25 +9,35 @@ import { questions } from "@/data/sampleQuestions";
 import { QuestionNav } from "@/components/QuestionNav";
 import { useExamState } from "@/contexts/ExamStateContext";
 import { saveTestHistory } from "@/services/saveTestHistory";
+import { useAuth } from "@/contexts/AuthContext";
+import { UserDetails } from "@/types";
+import { fetchUserById } from "@/data/fetchUser";
+import Loader from "@/components/Loader";
 
-interface ExamPageProps {
-  name?: string;
-  examNumber?: string;
-}
+const ExamPage = () => {
+  const { user } = useAuth();
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+  const refNumber = useRef(
+    `NOA/25A/${Math.floor(1000 + Math.random() * 9000)}`
+  );
 
-const ExamPage = ({
-  name = "John Doe",
-  examNumber = "NOA/2025/001",
-}: ExamPageProps) => {
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    setLoading(true);
+    fetchUserById(user.uid).then((data) => {
+      setUserDetails(data);
+      setLoading(false);
+    });
+  }, [user]);
   const { examState, setExamState } = useExamState();
-
   const navigate = useNavigate();
-  const test = useExamState();
-  console.log(test);
   const currentQuestion = questions[examState.currentQuestion];
   const currentQuestionOptions = currentQuestion.options;
 
-  // move to next question
+  // Move to next question
   const handleNext = () => {
     if (examState.currentQuestion < questions.length - 1) {
       setExamState((prevState) => ({
@@ -37,7 +47,7 @@ const ExamPage = ({
     }
   };
 
-  // go to previous question
+  // Go to previous question
   const handlePrevious = () => {
     if (examState.currentQuestion > 0) {
       setExamState((prevState) => ({
@@ -96,32 +106,33 @@ const ExamPage = ({
     }, 1000);
 
     return () => clearInterval(countDown);
-  }, [examState.timeRemaining, examState.isSubmitted]); // Depend on timeRemaining and isSubmitted
-
-  console.log(examState);
+  }, [examState.timeRemaining, examState.isSubmitted]);
 
   const minutes = Math.floor(examState.timeRemaining / 60);
   const seconds = examState.timeRemaining % 60;
+
+  if (loading) return <Loader />;
+
   return (
-    <div className="min-h-screen w-full max-w-7xl mx-auto bg-gray-50 text-gray-800 flex flex-col">
-      <header className="bg-white shadow-sm py-4 px-6 flex flex-col md:flex-row justify-between items-center sticky top-0 z-10 border-b border-gray-200">
+    <div className="min-h-screen w-full max-w-7xl mx-auto bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100 flex flex-col">
+      <header className="bg-gray-800 shadow-md py-4 px-6 flex flex-col md:flex-row justify-between items-center sticky top-0 z-10 border-b border-gray-700">
         <div className="flex items-center gap-4 mb-4 md:mb-0">
-          <img src="/public/noa.jpg" alt="NOA Logo" className="h-10 w-auto" />
-          <h2 className="text-xl font-bold text-gray-900">
+          <img src="/public/noa.jpg" alt="NOA Logo" className="h-12 w-auto" />
+          <h2 className="text-2xl font-bold text-gray-100">
             2025 NOA Promotional Examination
           </h2>
         </div>
-        <div className="flex flex-col items-end gap-2">
-          <p className="font-medium text-sm text-gray-700">
+        <div className="flex flex-col items-end gap-3">
+          <p className="font-medium text-sm text-gray-300">
             <span className="font-light">Name: </span>
-            {name}
+            {userDetails?.name}
           </p>
-          <p className="font-medium text-sm text-gray-700">
+          <p className="font-medium text-sm text-gray-300">
             <span className="font-light">Exam Number: </span>
-            {examNumber}
+            {refNumber.current}
           </p>
-          <div className="flex items-center gap-4 mt-2">
-            <div className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-md text-lg font-bold">
+          <div className="flex items-center gap-4 mt-3">
+            <div className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg text-lg font-semibold shadow-sm">
               <Clock className="w-5 h-5" />
               <span>
                 {String(minutes).padStart(2, "0")}:
@@ -131,7 +142,7 @@ const ExamPage = ({
             <Button
               onClick={handleSubmit}
               disabled={examState.isSubmitted}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md shadow-md transition-colors duration-200"
+              className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {examState.isSubmitted ? "Submitted" : "Submit Exam"}
             </Button>
@@ -139,15 +150,15 @@ const ExamPage = ({
         </div>
       </header>
 
-      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8">
-        <Card className="shadow-lg rounded-lg">
+      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-10">
+        <Card className="bg-gray-800 border border-gray-700 shadow-lg rounded-xl">
           <CardHeader>
-            <CardTitle className="text-xl font-semibold text-gray-900">
+            <CardTitle className="text-2xl font-semibold text-gray-100">
               Question {currentQuestion.id}:
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-700 mb-6 text-lg">
+            <p className="text-gray-300 mb-6 text-lg leading-relaxed">
               {currentQuestion.question}
             </p>
             <RadioGroup
@@ -160,22 +171,21 @@ const ExamPage = ({
               {currentQuestionOptions.map((option, index) => (
                 <div
                   key={index}
-                  className="flex items-center p-4 border rounded-md hover:bg-gray-50 cursor-pointer transition-colors duration-200"
-                  data-state={
+                  className={`flex items-center p-4 border border-gray-600 rounded-lg hover:bg-gray-700 cursor-pointer transition-all duration-200 ${
                     examState.answers[examState.currentQuestion] === index
-                      ? "checked"
-                      : "unchecked"
-                  }
+                      ? "bg-blue-900/50 border-blue-500"
+                      : ""
+                  }`}
                   onClick={() => handleOptionChange(index)}
                 >
                   <RadioGroupItem
                     value={index.toString()}
                     id={`option-${currentQuestion.id}-${index}`}
-                    className="mr-3"
+                    className="mr-3 text-blue-400"
                   />
                   <Label
                     htmlFor={`option-${currentQuestion.id}-${index}`}
-                    className="text-gray-800 text-base cursor-pointer flex-1"
+                    className="text-gray-200 text-base cursor-pointer flex-1"
                   >
                     {option}
                   </Label>
@@ -185,25 +195,25 @@ const ExamPage = ({
           </CardContent>
         </Card>
 
-        <div className="flex justify-between mt-8">
+        <div className="flex justify-between mt-10">
           <Button
             onClick={handlePrevious}
             disabled={examState.currentQuestion === 0}
-            className="px-6 py-2 rounded-md shadow-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 rounded-lg shadow-md bg-gray-700 text-gray-100 hover:bg-gray-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ChevronLeft className="mr-2 h-4 w-4" /> Previous
           </Button>
           <Button
             onClick={handleNext}
             disabled={examState.currentQuestion === questions.length - 1}
-            className="px-6 py-2 rounded-md shadow-md bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 rounded-lg shadow-md bg-blue-600 hover:bg-blue-500 text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Next <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
       </main>
 
-      <footer className="mt-8 py-6 bg-white border-t border-gray-200 shadow-sm">
+      <footer className="mt-8 py-6 bg-gray-800 border-t border-gray-700 shadow-md">
         <QuestionNav
           totalQuestions={questions.length}
           currentQuestion={examState.currentQuestion}

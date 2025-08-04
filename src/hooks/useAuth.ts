@@ -11,8 +11,10 @@ import { toast } from "sonner";
 
 export const login = async (
   loginDetails: { email: string; password: string },
-  setError: UseFormSetError<any>
+  setError: UseFormSetError<any>,
+  setLoading: (loading: boolean) => void
 ) => {
+  setLoading(true);
   try {
     const { email, password } = loginDetails;
     const userCredential = await signInWithEmailAndPassword(
@@ -60,6 +62,8 @@ export const login = async (
     }
 
     return null;
+  } finally {
+    setLoading(false);
   }
 };
 
@@ -69,9 +73,11 @@ export const createAccount = async (
     password: string;
     name: string;
   },
-  setError: UseFormSetError<any>
+  setError: UseFormSetError<any>,
+  setLoading: (loading: boolean) => void
 ) => {
   try {
+    setLoading(true);
     const { email, password, name } = createAccountDetails;
 
     const userCredential = await createUserWithEmailAndPassword(
@@ -130,6 +136,8 @@ export const createAccount = async (
         message: "Unexpected error occurred during sign up.",
       });
     }
+  } finally {
+    setLoading(false);
   }
 };
 
