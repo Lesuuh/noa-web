@@ -1,7 +1,8 @@
-import { auth, db } from "@/firebase";
+import { auth, db, provider } from "@/firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
@@ -64,6 +65,16 @@ export const login = async (
     return null;
   } finally {
     setLoading(false);
+  }
+};
+
+export const googleLogin = async () => {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    return user;
+  } catch (error) {
+    console.error("Google login error:", error);
   }
 };
 

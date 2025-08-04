@@ -37,6 +37,8 @@ const Dashboard = () => {
   const { user } = useAuth();
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
 
+  console.log(user);
+
   useEffect(() => {
     if (!user?.uid) return;
 
@@ -133,7 +135,18 @@ const Dashboard = () => {
               Welcome back, Ready for your next challenge?
             </p>
           </div>
-          <div>{user?.photoURL || <User2Icon className="text-blue-400" />}</div>
+          <div>
+            {user?.photoURL ? (
+              <img
+                src={user.photoURL}
+                alt="User profile"
+                className="w-8 h-8 rounded-full object-cover"
+                title={user.displayName || "Profile"}
+              />
+            ) : (
+              <User2Icon className="text-blue-400 w-8 h-8" />
+            )}
+          </div>
         </div>
         <div className="mt-4 w-full flex items-center justify-between gap-4">
           <Link to={"/exam"} className="flex-1">
