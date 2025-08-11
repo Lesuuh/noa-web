@@ -49,7 +49,6 @@ const Dashboard = () => {
     });
   }, [user]);
 
-  console.log(userDetails);
   const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState<any[]>([]);
   const [width, height] = useWindowSize();
@@ -62,7 +61,7 @@ const Dashboard = () => {
   const highestScore = history.length
     ? Math.max(...history.map((test) => test.score))
     : 0;
-  const totalTime = history.reduce((acc, test) => acc + test.time, 0);
+  const totalTime = history.reduce((acc, test) => acc + Number(test.time), 0);
   const averageTime = totalTestTaken
     ? (totalTime / totalTestTaken).toFixed(1)
     : "0";
@@ -129,7 +128,7 @@ const Dashboard = () => {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-3xl md:text-4xl font-semibold text-gray-100">
-              Hello, {userDetails.name}
+              Hello, {userDetails?.name}
             </h2>
             <p className="text-gray-400 mt-1 text-sm">
               Welcome back, Ready for your next challenge?
@@ -157,9 +156,10 @@ const Dashboard = () => {
           <Link to={"/resume"} className="flex-1">
             <Button
               variant="outline"
-              className="w-full py-6 text-blue-400 border-blue-600 hover:bg-gray-700"
+              disabled
+              className="w-full cursor-not-allowed py-6 text-blue-400 border-blue-600 hover:bg-gray-700"
             >
-              <TimerIcon /> Resume previous test
+              <TimerIcon size={16} /> Resume
             </Button>
           </Link>
         </div>
@@ -168,7 +168,7 @@ const Dashboard = () => {
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 w-full max-w-7xl mx-auto">
         <Card className="bg-gray-800 border border-gray-700">
           <CardHeader>
-            <CardTitle>📊 Your Stats</CardTitle>
+            <CardTitle className="text-white">📊 Your Stats</CardTitle>
             <CardDescription className="text-gray-400">
               Overview of your performance.
             </CardDescription>
@@ -199,7 +199,7 @@ const Dashboard = () => {
 
         <Card className="bg-gray-800 border border-gray-700">
           <CardHeader>
-            <CardTitle>📈 Score Trend</CardTitle>
+            <CardTitle className="text-white">📈 Score Trend</CardTitle>
             <CardDescription className="text-gray-400">
               Your scores over the last few months.
             </CardDescription>
@@ -251,7 +251,7 @@ const Dashboard = () => {
       <section className="max-w-7xl w-full mx-auto mt-6">
         <Card className="bg-gray-800 border border-gray-700">
           <CardHeader>
-            <CardTitle>Test History</CardTitle>
+            <CardTitle className="text-white">Test History</CardTitle>
             <CardDescription className="text-gray-400">
               Review your test history
             </CardDescription>
@@ -283,7 +283,7 @@ const Dashboard = () => {
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl w-full mx-auto mt-7">
         <Card className="bg-gray-800 border border-gray-700">
           <CardHeader>
-            <CardTitle>⚙️ Settings</CardTitle>
+            <CardTitle className="text-white">⚙️ Settings</CardTitle>
             <CardDescription className="text-gray-400">
               Manage your profile and preferences.
             </CardDescription>
@@ -313,7 +313,7 @@ const Dashboard = () => {
 
         <Card className="bg-gray-800 border border-gray-700">
           <CardHeader>
-            <CardTitle>🏆 Achievements</CardTitle>
+            <CardTitle className="text-white">🏆 Achievements</CardTitle>
             <CardDescription className="text-gray-400">
               Milestones you've reached.
             </CardDescription>
@@ -351,7 +351,7 @@ const Dashboard = () => {
 
         <Card className="bg-gray-800 border border-gray-700">
           <CardHeader>
-            <CardTitle>❓ Help</CardTitle>
+            <CardTitle className="text-white">❓ Help</CardTitle>
             <CardDescription className="text-gray-400">
               Need assistance or have feedback?
             </CardDescription>

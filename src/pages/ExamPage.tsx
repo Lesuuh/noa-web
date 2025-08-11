@@ -32,9 +32,14 @@ const ExamPage = () => {
       setLoading(false);
     });
   }, [user]);
+
+  const shuffleQuestions = () => {
+    return questions.sort(() => Math.random() - 0.5);
+  };
   const { examState, setExamState } = useExamState();
   const navigate = useNavigate();
-  const currentQuestion = questions[examState.currentQuestion];
+  const [shuffledQuestions] = useState(() => shuffleQuestions());
+  const currentQuestion = shuffledQuestions[examState.currentQuestion];
   const currentQuestionOptions = currentQuestion.options;
 
   // Move to next question
@@ -111,29 +116,43 @@ const ExamPage = () => {
   const minutes = Math.floor(examState.timeRemaining / 60);
   const seconds = examState.timeRemaining % 60;
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentQuestion]);
+
   if (loading) return <Loader />;
 
   return (
     <div className="min-h-screen w-full max-w-7xl mx-auto bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100 flex flex-col">
-      <header className="bg-gray-800 shadow-md py-4 px-6 flex flex-col md:flex-row justify-between items-center sticky top-0 z-10 border-b border-gray-700">
-        <div className="flex items-center gap-4 mb-4 md:mb-0">
-          <img src="/public/noa.jpg" alt="NOA Logo" className="h-12 w-auto" />
-          <h2 className="text-2xl font-bold text-gray-100">
+      <header className="bg-gray-800 shadow-md h-[70px] px-4 sm:px-6 flex flex-col md:flex-row justify-between items-center sticky top-0 z-10 border-b border-gray-700">
+        {/* Left side */}
+        <div className="flex items-center gap-3 sm:gap-4 flex-wrap justify-center md:justify-start">
+          <img
+            src="/public/noa.jpg"
+            alt="NOA Logo"
+            className="h-8 w-auto sm:h-10"
+          />
+          <h2 className="text-lg sm:text-xl font-bold text-gray-100 leading-tight">
             2025 NOA Promotional Examination
           </h2>
         </div>
-        <div className="flex flex-col items-end gap-3">
-          <p className="font-medium text-sm text-gray-300">
-            <span className="font-light">Name: </span>
-            {userDetails?.name}
-          </p>
-          <p className="font-medium text-sm text-gray-300">
-            <span className="font-light">Exam Number: </span>
-            {refNumber.current}
-          </p>
-          <div className="flex items-center gap-4 mt-3">
-            <div className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg text-lg font-semibold shadow-sm">
-              <Clock className="w-5 h-5" />
+
+        {/* Right side */}
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:flex flex-col items-end">
+            <p className="font-medium text-xs text-gray-300">
+              <span className="font-light">Name: </span>
+              {userDetails?.name}
+            </p>
+            <p className="font-medium text-xs text-gray-300">
+              <span className="font-light">Exam Number: </span>
+              {refNumber.current}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 bg-red-600 text-white px-2 py-1 rounded-md text-sm font-semibold shadow-sm">
+              <Clock className="w-4 h-4" />
               <span>
                 {String(minutes).padStart(2, "0")}:
                 {String(seconds).padStart(2, "0")}
@@ -142,9 +161,9 @@ const ExamPage = () => {
             <Button
               onClick={handleSubmit}
               disabled={examState.isSubmitted}
-              className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 text-sm rounded-md shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {examState.isSubmitted ? "Submitted" : "Submit Exam"}
+              {examState.isSubmitted ? "Submitted" : "Submit"}
             </Button>
           </div>
         </div>
@@ -154,7 +173,7 @@ const ExamPage = () => {
         <Card className="bg-gray-800 border border-gray-700 shadow-lg rounded-xl">
           <CardHeader>
             <CardTitle className="text-2xl font-semibold text-gray-100">
-              Question {currentQuestion.id}:
+              {/* Question {currentQuestion.id}: */}
             </CardTitle>
           </CardHeader>
           <CardContent>
