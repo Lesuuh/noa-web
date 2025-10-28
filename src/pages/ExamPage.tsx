@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -13,6 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { fetchQuestions } from "@/data/fetchQuestions";
 import { Question } from "@/types";
 import ExamResult from "./ExamResult";
+import { TimerDisplay } from "@/components/TimerDisplay";
 
 const TOTAL_TIME = 60 * 180; // 180 minutes in seconds
 
@@ -50,13 +51,18 @@ export default function ExamPage() {
     setIsSubmitted(true);
   }, [answers, allQuestions]);
 
+  console.log("check");
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   // Timer effect
   useEffect(() => {
     if (isSubmitted) return;
 
-    const interval = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       setTimeRemaining((prev) => {
+        // trigger submit on timeout
         if (prev <= 1) {
+          clearInterval(intervalRef.current!);
           handleSubmit();
           return 0;
         }
@@ -64,7 +70,7 @@ export default function ExamPage() {
       });
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(intervalRef.current!);
   }, [handleSubmit, isSubmitted]);
 
   const handleOptionChange = (optionIndex: number) => {
@@ -98,7 +104,8 @@ export default function ExamPage() {
   const question = allQuestions[currentQuestion];
   const isTimeWarning = timeRemaining < 60;
   const answeredCount = Object.keys(answers).length;
-  const scorePercentage = Math.round((score / allQuestions.length) * 100);
+
+  // const scorePercentage = Math.round((score / allQuestions.length) * 100);
 
   if (allQuestions.length === 0)
     return (
@@ -109,81 +116,10 @@ export default function ExamPage() {
 
   if (isSubmitted) {
     return (
-      // <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4">
-      //   <Card className="w-full max-w-md bg-slate-900/80 border-slate-800 backdrop-blur-sm">
-      //     <CardContent className="pt-12 pb-12 text-center space-y-6">
-      //       <div className="flex justify-center">
-      //         <div className="relative w-24 h-24">
-      //           <svg className="w-24 h-24" viewBox="0 0 100 100">
-      //             <circle
-      //               cx="50"
-      //               cy="50"
-      //               r="45"
-      //               fill="none"
-      //               stroke="rgba(34,211,238,0.1)"
-      //               strokeWidth="2"
-      //             />
-      //             <circle
-      //               cx="50"
-      //               cy="50"
-      //               r="45"
-      //               fill="none"
-      //               stroke="rgb(34,211,238)"
-      //               strokeWidth="2"
-      //               strokeDasharray={`${(scorePercentage / 100) * 282.7} 282.7`}
-      //               strokeLinecap="round"
-      //               transform="rotate(-90 50 50)"
-      //             />
-      //           </svg>
-      //           <div className="absolute inset-0 flex items-center justify-center">
-      //             <span className="text-3xl font-bold text-cyan-400">
-      //               {scorePercentage}%
-      //             </span>
-      //           </div>
-      //         </div>
-      //       </div>
-
-      //       <div>
-      //         <h2 className="text-2xl font-bold text-white mb-2">
-      //           Exam Complete!
-      //         </h2>
-      //         <p className="text-slate-400">
-      //           You scored{" "}
-      //           <span className="text-cyan-400 font-semibold">{score}</span> out
-      //           of{" "}
-      //           <span className="text-cyan-400 font-semibold">
-      //             {allQuestions.length}
-      //           </span>{" "}
-      //           questions
-      //         </p>
-      //       </div>
-
-      //       <div className="grid grid-cols-2 gap-4 pt-4">
-      //         <div className="bg-slate-800/50 rounded-lg p-4">
-      //           <p className="text-slate-400 text-sm mb-1">Correct</p>
-      //           <p className="text-2xl font-bold text-emerald-400">{score}</p>
-      //         </div>
-      //         <div className="bg-slate-800/50 rounded-lg p-4">
-      //           <p className="text-slate-400 text-sm mb-1">Incorrect</p>
-      //           <p className="text-2xl font-bold text-red-400">
-      //             {allQuestions.length - score}
-      //           </p>
-      //         </div>
-      //       </div>
-
-      //       <Button
-      //         onClick={() => window.location.reload()}
-      //         className="w-full bg-cyan-500 hover:bg-cyan-400 text-white font-semibold py-2 rounded-lg transition-colors"
-      //       >
-      //         Retake Exam
-      //       </Button>
-      //     </CardContent>
-      //   </Card>
-      // </div>
       <ExamResult
+        allQuestions={allQuestions}
         score={score}
         totalQuestions={allQuestions.length}
-        onRetake={() => window.location.reload()}
       />
     );
   }
@@ -192,11 +128,11 @@ export default function ExamPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-50">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-gradient-to-r from-slate-900/95 to-slate-800/95 backdrop-blur-md border-b border-slate-700/50 shadow-lg">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
             {/* Left: Exam Info */}
-            <div className="flex-1 min-w-0">
-              <h1 className="text-lg sm:text-xl font-bold text-white truncate">
+            <div className="w-full sm:w-auto flex-1 text-center sm:text-left">
+              <h1 className="text-base sm:text-xl font-bold text-white truncate">
                 2025 Promotional Exam
               </h1>
               <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
@@ -204,9 +140,9 @@ export default function ExamPage() {
               </p>
             </div>
 
-            {/* Center: Progress */}
-            <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-slate-800/50 rounded-lg">
-              <div className="w-32 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+            {/* Center: Progress Bar (hidden on very small screens) */}
+            <div className="hidden xs:flex items-center gap-2 px-3 sm:px-4 py-2 bg-slate-800/50 rounded-lg">
+              <div className="w-24 sm:w-32 h-1.5 bg-slate-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300"
                   style={{
@@ -216,36 +152,32 @@ export default function ExamPage() {
                   }}
                 />
               </div>
-              <span className="text-xs font-medium text-slate-300 whitespace-nowrap">
+              <span className="text-[10px] sm:text-xs font-medium text-slate-300 whitespace-nowrap">
                 {answeredCount}/{allQuestions.length}
               </span>
             </div>
 
-            {/* Right: Timer */}
-            <div
-              className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-semibold transition-colors ${
-                isTimeWarning
-                  ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                  : "bg-slate-800/50 text-slate-200 border border-slate-700/50"
-              }`}
-            >
-              <Clock className="w-4 h-4 flex-shrink-0" />
-              <span className="text-sm sm:text-base font-mono">
-                {String(Math.floor(timeRemaining / 3600)).padStart(2, "0")}:
-                {String(Math.floor((timeRemaining % 3600) / 60)).padStart(
-                  2,
-                  "0"
-                )}
-                :{String(timeRemaining % 60).padStart(2, "0")}
-              </span>
+            {/* Right: Timer + Submit */}
+            <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end">
+              <div
+                className={`flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-semibold text-sm sm:text-base transition-colors ${
+                  isTimeWarning
+                    ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                    : "bg-slate-800/50 text-slate-200 border border-slate-700/50"
+                }`}
+              >
+                <Clock className="w-4 h-4 flex-shrink-0" />
+                <TimerDisplay time={timeRemaining} />
+              </div>
+
+              <Button
+                onClick={handleSubmit}
+                className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white text-sm sm:text-base font-semibold rounded-lg transition-all duration-200"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span className=" xs:inline">Submit</span>
+              </Button>
             </div>
-            <Button
-              onClick={handleSubmit}
-              className="w-full sm:w-auto px-8 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
-            >
-              <CheckCircle2 className="w-4 h-4" />
-              <span>Submit Exam</span>
-            </Button>
           </div>
         </div>
       </header>

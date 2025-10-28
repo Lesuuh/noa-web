@@ -34,7 +34,7 @@ const mockHistory = [
   { date: "2024-10-20", score: 92, time: 45 },
   { date: "2024-10-18", score: 48, time: 52 },
   { date: "2024-10-15", score: 95, time: 40 },
-  { date: "2024-10-12", score: 90, time: 58 },
+  { date: "2024-10-12", score: 20, time: 58 },
   { date: "2024-10-10", score: 85, time: 48 },
 ];
 
@@ -124,7 +124,7 @@ export default function Dashboard() {
       borderColor: "border-emerald-500/30",
     },
     {
-      label: "Avg. Time",
+      label: "Avg. Completion Time",
       value: `${averageTime} min`,
       icon: TimerIcon,
       bgColor: "bg-purple-500/10",
@@ -135,12 +135,12 @@ export default function Dashboard() {
 
   const acheivements = [
     {
-      label: "5 Tests",
+      label: "Consistency Champion - Completed 5 Tests",
       value: toComplete5Challenges(),
       color: "bg-cyan-500",
     },
     {
-      label: "90%+ Score",
+      label: "Higher Achiever - Scored 90+% in recent tests",
       value: scoreAbove90(),
       color: "bg-blue-500",
     },
@@ -156,7 +156,7 @@ export default function Dashboard() {
       >
         <div className="flex items-center justify-between p-4 border-b border-slate-800">
           <h1 className="font-bold text-lg bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-            Mono
+            NOA CBT
           </h1>
           <button
             onClick={() => setSidebarOpen(false)}
@@ -227,9 +227,10 @@ export default function Dashboard() {
               <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
                 {userDetails.name}
               </span>
+              {/* , Continue your journey toward excellence */}
             </h2>
             <p className="text-slate-400 mt-1">
-              Track your progress and master skills
+              Monitor your performance. Strengthen your professional excellence.
             </p>
           </div>
           <div className="hidden md:flex-shrink-0">
@@ -310,7 +311,9 @@ export default function Dashboard() {
           <div className="lg:col-span-2 bg-slate-900/50 border border-slate-800 rounded-xl p-4 sm:p-6 backdrop-blur-sm">
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp className="w-5 h-5 text-cyan-400" />
-              <h3 className="font-bold text-lg">Score Progression</h3>
+              <h3 className="font-bold text-lg">
+                Your recent performance trend — keep your scores climbing
+              </h3>
             </div>
             <ResponsiveContainer width="100%" height={240}>
               <LineChart data={scoreTrendData}>
