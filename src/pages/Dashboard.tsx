@@ -1,79 +1,63 @@
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import { Progress } from "@/components/ui/progress";
-import { useAuth } from "@/contexts/AuthContext";
-import { fetchTestHistory } from "@/services/fetchAllTestHistory";
+import { useState, useEffect } from "react";
+// import Confetti from "react-confetti";
+// import { useWindowSize } from "@react-hook/window-size";
 import {
   ArrowRight,
-  BookKey,
-  HelpCircle,
-  Settings,
-  TimerIcon,
   Trophy,
   User2Icon,
+  Settings,
+  HelpCircle,
+  Target,
+  TrendingUp,
+  TimerIcon,
+  Zap,
+  Menu,
+  X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-import Confetti from "react-confetti";
-import { useWindowSize } from "@react-hook/window-size";
-import { LogoutDialog } from "@/components/modals/LogoutModal";
-import Loader from "@/components/Loader";
-import { fetchUserById } from "@/data/fetchUser";
-import { UserDetails } from "@/types";
 
-const Dashboard = () => {
-  const { user } = useAuth();
-  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 
-  console.log(user);
+const mockUserDetails = {
+  name: "Lesuuh",
+  photoURL: null,
+};
 
-  useEffect(() => {
-    if (!user?.uid) return;
+const mockHistory = [
+  { date: "2024-10-20", score: 92, time: 45 },
+  { date: "2024-10-18", score: 48, time: 52 },
+  { date: "2024-10-15", score: 95, time: 40 },
+  { date: "2024-10-12", score: 90, time: 58 },
+  { date: "2024-10-10", score: 85, time: 48 },
+];
 
-    setLoading(true);
-    fetchUserById(user.uid).then((data) => {
-      setUserDetails(data);
-      setLoading(false);
-    });
-  }, [user]);
-
-  const [loading, setLoading] = useState(true);
-  const [history, setHistory] = useState<any[]>([]);
-  const [width, height] = useWindowSize();
+export default function Dashboard() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [logoutModal, setLogoutModal] = useState(false);
 
+  const history = mockHistory;
+  const userDetails = mockUserDetails;
+
+  // Statistics
   const totalTestTaken = history.length;
   const totalScore = history.reduce((acc, test) => acc + test.score, 0);
   const averageScore = totalTestTaken ? totalScore / totalTestTaken : 0;
   const highestScore = history.length
-    ? Math.max(...history.map((test) => test.score))
+    ? Math.max(...history.map((t) => t.score))
     : 0;
-  const totalTime = history.reduce((acc, test) => acc + Number(test.time), 0);
+  const totalTime = history.reduce((acc, t) => acc + Number(t.time), 0);
   const averageTime = totalTestTaken
     ? (totalTime / totalTestTaken).toFixed(1)
     : "0";
 
-  const scores = history.map((test) => test.score);
-  console.log(scores);
-  const scoreTrendData = scores.reverse().map((score, index) => ({
-    test: `Test ${index + 1}`,
-    score: score,
-  }));
-
-  const highScores = history.filter((test) => test.score > 90);
+  const highScores = history.filter((t) => t.score > 90);
   const scoreAbove90 = () => {
     if (highScores.length >= 3) return 100;
     if (highScores.length === 2) return 66;
@@ -91,299 +75,319 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    if (totalTestTaken === 5 && !showConfetti) {
-      setShowConfetti(true);
-    }
+    if (totalTestTaken === 5 && !showConfetti) setShowConfetti(true);
   }, [totalTestTaken, showConfetti]);
 
   useEffect(() => {
     if (showConfetti) {
-      const timeOut = setTimeout(() => {
-        setShowConfetti(false);
-      }, 5000);
-      return () => clearTimeout(timeOut);
+      const timeout = setTimeout(() => setShowConfetti(false), 5000);
+      return () => clearTimeout(timeout);
     }
   }, [showConfetti]);
 
-  useEffect(() => {
-    const fetchingTestHistory = async () => {
-      try {
-        setLoading(true);
-        const testHistory = await fetchTestHistory();
-        setHistory(testHistory);
-      } catch (err) {
-        console.error("Failed to fetch history:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchingTestHistory();
-  }, []);
+  const scoreTrendData = history
+    .slice() // createsa acopy of the data
+    .reverse() // flip the arrangement order
+    .map((test) => ({ test: test.date, score: test.score }));
 
-  if (loading) return <Loader />;
+  const navItems = [
+    { label: "Dashboard", icon: Target, href: "dashboard" },
+    { label: "Take Exam", icon: Zap, href: "exam" },
+    { label: "Achievements", icon: Trophy, href: "#" },
+    { label: "Settings", icon: Settings, href: "#" },
+    { label: "Support", icon: HelpCircle, href: "#" },
+  ];
+
+  const kpiData = [
+    {
+      label: "Tests Completed",
+      value: totalTestTaken,
+      icon: Target,
+      bgColor: "bg-cyan-500/10",
+      textColor: "text-cyan-400",
+      borderColor: "border-cyan-500/30",
+    },
+    {
+      label: "Average Score",
+      value: `${averageScore.toFixed(1)}%`,
+      icon: TrendingUp,
+      bgColor: "bg-blue-500/10",
+      textColor: "text-blue-400",
+      borderColor: "border-blue-500/30",
+    },
+    {
+      label: "Highest Score",
+      value: `${highestScore}%`,
+      icon: Trophy,
+      bgColor: "bg-emerald-500/10",
+      textColor: "text-emerald-400",
+      borderColor: "border-emerald-500/30",
+    },
+    {
+      label: "Avg. Time",
+      value: `${averageTime} min`,
+      icon: TimerIcon,
+      bgColor: "bg-purple-500/10",
+      textColor: "text-purple-400",
+      borderColor: "border-purple-500/30",
+    },
+  ];
+
+  const acheivements = [
+    {
+      label: "5 Tests",
+      value: toComplete5Challenges(),
+      color: "bg-cyan-500",
+    },
+    {
+      label: "90%+ Score",
+      value: scoreAbove90(),
+      color: "bg-blue-500",
+    },
+  ];
 
   return (
-    <main className="flex flex-col w-full min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100 p-4 md:p-6 lg:p-8">
-      <section className="shadow-md rounded-md p-5 md:p-10 w-full border border-gray-700 bg-gray-800 max-w-7xl mx-auto">
-        <div className="flex items-center justify-between">
+    <div className="flex min-h-screen bg-slate-950 text-slate-50">
+      {/* Sidebar */}
+      <aside
+        className={`fixed z-50 h-full top-0 left-0 bg-gradient-to-b from-slate-900 to-slate-950 border-r border-slate-800 transition-transform duration-300 w-64 md:w-64 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        }`}
+      >
+        <div className="flex items-center justify-between p-4 border-b border-slate-800">
+          <h1 className="font-bold text-lg bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            Mono
+          </h1>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors md:hidden"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Make sidebar a flex column with space-between */}
+        <div className="flex flex-col justify-between h-[calc(100%-64px)] px-2 py-4">
+          {/* Nav Items */}
+          <nav className="space-y-1 overflow-y-auto">
+            {navItems.map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800/50 transition-colors group"
+              >
+                <item.icon className="w-5 h-5 text-cyan-400 group-hover:text-cyan-300" />
+                <span className="text-sm font-medium group-hover:text-white transition-colors">
+                  {item.label}
+                </span>
+              </a>
+            ))}
+          </nav>
+
+          {/* Logout Button */}
+          <div className="pt-4 border-t border-slate-800">
+            <button className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-red-100 transition-colors group">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5 text-red-400 group-hover:text-red-600 transition-colors"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V5"
+                />
+              </svg>
+              <span className="text-sm font-medium text-red-400 group-hover:text-red-600 transition-colors">
+                Logout
+              </span>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* Hamburger button for mobile */}
+      <button
+        onClick={() => setSidebarOpen(true)}
+        className="fixed top-4 right-4 md:hidden z-50 p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+
+      {/* Main Content */}
+      <main className="flex-1 p-4 md:p-8 space-y-8 overflow-auto ml-0 md:ml-64">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-3xl md:text-4xl font-semibold text-gray-100">
-              Hello, {userDetails?.name}
+            <h2 className="text-3xl sm:text-4xl font-bold">
+              Welcome back,{" "}
+              <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                {userDetails.name}
+              </span>
             </h2>
-            <p className="text-gray-400 mt-1 text-sm">
-              Welcome back, Ready for your next challenge?
+            <p className="text-slate-400 mt-1">
+              Track your progress and master skills
             </p>
           </div>
-          <div>
-            {user?.photoURL ? (
+          <div className="hidden md:flex-shrink-0">
+            {userDetails.photoURL ? (
               <img
-                src={user.photoURL}
-                alt="User profile"
-                className="w-8 h-8 rounded-full object-cover"
-                title={user.displayName || "Profile"}
+                src={userDetails.photoURL || "/placeholder.svg"}
+                alt="avatar"
+                className="w-12 h-12 sm:w-14 sm:h-14 rounded-full ring-2 ring-cyan-500/50 object-cover"
               />
             ) : (
-              <User2Icon className="text-blue-400 w-8 h-8" />
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center ring-2 ring-cyan-500/50">
+                <User2Icon className="text-white w-6 h-6 sm:w-7 sm:h-7" />
+              </div>
             )}
           </div>
         </div>
-        <div className="mt-4 w-full flex items-center justify-between gap-4">
-          <Link to={"/exam"} className="flex-1">
-            <Button className="py-6 w-full bg-blue-600 hover:bg-blue-500 text-white">
-              <BookKey /> Start New Test
-            </Button>
-          </Link>
-          <Link to={"/resume"} className="flex-1">
-            <Button
-              variant="outline"
-              disabled
-              className="w-full cursor-not-allowed py-6 text-blue-400 border-blue-600 hover:bg-gray-700"
+
+        {/* KPIs Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {kpiData.map((kpi) => (
+            <div
+              key={kpi.label}
+              className={`${kpi.bgColor} border ${kpi.borderColor} rounded-xl p-4 sm:p-6 backdrop-blur-sm transition-all hover:scale-105 hover:border-opacity-100`}
             >
-              <TimerIcon size={16} /> Resume
-            </Button>
-          </Link>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-slate-400 text-sm font-medium">
+                    {kpi.label}
+                  </p>
+                  <p
+                    className={`${kpi.textColor} text-2xl sm:text-3xl font-bold mt-2`}
+                  >
+                    {kpi.value}
+                  </p>
+                </div>
+                <div className={`${kpi.bgColor} p-2 sm:p-3 rounded-lg`}>
+                  <kpi.icon
+                    className={`${kpi.textColor} w-5 h-5 sm:w-6 sm:h-6`}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-      </section>
 
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 w-full max-w-7xl mx-auto">
-        <Card className="bg-gray-800 border border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white">📊 Your Stats</CardTitle>
-            <CardDescription className="text-gray-400">
-              Overview of your performance.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4 text-gray-100">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Total Tests Taken:</span>
-              <span className="text-lg font-semibold">{totalTestTaken}</span>
+        {/* Achievements & Chart */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+          {/* Achievements */}
+          <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 sm:p-6 backdrop-blur-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <Trophy className="w-5 h-5 text-cyan-400" />
+              <h3 className="font-bold text-lg">Achievements</h3>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Average Score:</span>
-              <span className="text-lg font-semibold">
-                {averageScore.toFixed(1)}%
-              </span>
+            {/* {showConfetti && <Confetti width={width} height={height} />} */}
+            <div className="space-y-4">
+              {acheivements.map((ach) => (
+                <div key={ach.label}>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm font-medium text-slate-300">
+                      {ach.label}
+                    </span>
+                    <span className="text-xs font-bold text-slate-400">
+                      {ach.value}%
+                    </span>
+                  </div>
+                  <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                      className={`${ach.color} h-full rounded-full transition-all duration-500`}
+                      style={{ width: `${ach.value}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Highest Score:</span>
-              <span className="text-lg font-semibold">{highestScore}%</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">
-                Average Completion Time:
-              </span>
-              <span className="text-lg font-semibold">{averageTime} mins</span>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        <Card className="bg-gray-800 border border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white">📈 Score Trend</CardTitle>
-            <CardDescription className="text-gray-400">
-              Your scores over the last few months.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer
-              config={{
-                score: {
-                  label: "Score",
-                  color: "hsl(var(--primary))",
-                },
-              }}
-              className="min-h-[200px] w-full"
-            >
-              <LineChart data={scoreTrendData} margin={{ left: 12, right: 12 }}>
-                <CartesianGrid vertical={false} stroke="#4b5563" />
+          {/* Score Chart */}
+          <div className="lg:col-span-2 bg-slate-900/50 border border-slate-800 rounded-xl p-4 sm:p-6 backdrop-blur-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <TrendingUp className="w-5 h-5 text-cyan-400" />
+              <h3 className="font-bold text-lg">Score Progression</h3>
+            </div>
+            <ResponsiveContainer width="100%" height={240}>
+              <LineChart data={scoreTrendData}>
+                <CartesianGrid
+                  stroke="rgba(148,163,184,0.1)"
+                  vertical={false}
+                  strokeDasharray="5 5"
+                />
                 <XAxis
                   dataKey="test"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  className="text-xs text-gray-400"
+                  tick={{ fill: "rgb(148,163,184)", fontSize: 12 }}
+                  axisLine={{ stroke: "rgba(148,163,184,0.1)" }}
                 />
                 <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
                   domain={[0, 100]}
-                  className="text-xs text-gray-400"
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent />}
+                  tick={{ fill: "rgb(148,163,184)", fontSize: 12 }}
+                  axisLine={{ stroke: "rgba(148,163,184,0.1)" }}
                 />
                 <Line
+                  type="monotone"
                   dataKey="score"
-                  type="natural"
-                  stroke="#3b82f6"
-                  strokeWidth={2}
-                  dot={{ fill: "#3b82f6" }}
-                  activeDot={{ r: 6, fill: "#3b82f6" }}
+                  stroke="rgb(34,211,238)"
+                  strokeWidth={3}
+                  dot={{ r: 4 }}
+                  activeDot={{ r: 6 }}
                 />
+                <Tooltip />
               </LineChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-      </section>
+            </ResponsiveContainer>
+          </div>
+        </div>
 
-      <section className="max-w-7xl w-full mx-auto mt-6">
-        <Card className="bg-gray-800 border border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white">Test History</CardTitle>
-            <CardDescription className="text-gray-400">
-              Review your test history
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4 divide-y divide-gray-700">
-            {history?.map((test, idx) => (
-              <div
-                key={idx}
-                className="flex items-center justify-between pb-2 last:pb-0"
-              >
-                <div>
-                  <h3 className="font-medium text-gray-100">
-                    {test.date} - {test.score}%
-                  </h3>
-                  <p className="text-blue-400 text-sm">{test.time} mins used</p>
-                </div>
-                <Button
-                  variant="secondary"
-                  className="bg-gray-700 text-gray-100 hover:bg-gray-600"
+        {/* Recent Tests */}
+        <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 sm:p-6 backdrop-blur-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <Zap className="w-5 h-5 text-cyan-400" />
+            <h3 className="font-bold text-lg">Recent Tests</h3>
+          </div>
+          <div className="space-y-3">
+            {history.length === 0 ? (
+              <p className="text-slate-400 text-center py-8">
+                No tests taken yet.
+              </p>
+            ) : (
+              history.slice(0, 5).map((t, idx) => (
+                <div
+                  key={idx}
+                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 transition-colors border border-slate-800/50"
                 >
-                  Review <ArrowRight />
-                </Button>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </section>
-
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl w-full mx-auto mt-7">
-        <Card className="bg-gray-800 border border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white">⚙️ Settings</CardTitle>
-            <CardDescription className="text-gray-400">
-              Manage your profile and preferences.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-2">
-            <Button
-              variant="ghost"
-              className="justify-start text-blue-400 hover:text-blue-300"
-            >
-              <Settings className="mr-2 h-4 w-4" /> View/Update Profile
-            </Button>
-            <Button
-              variant="ghost"
-              className="justify-start text-blue-400 hover:text-blue-300"
-            >
-              <Settings className="mr-2 h-4 w-4" /> Change Password
-            </Button>
-            <Button
-              onClick={() => setLogoutModal(true)}
-              variant="ghost"
-              className="justify-start text-red-400 hover:text-red-500"
-            >
-              Log Out
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gray-800 border border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white">🏆 Achievements</CardTitle>
-            <CardDescription className="text-gray-400">
-              Milestones you've reached.
-            </CardDescription>
-          </CardHeader>
-          {showConfetti && <Confetti width={width} height={height} />}
-          <CardContent className="grid gap-4">
-            <div className="flex items-center gap-3">
-              <Trophy className="h-6 w-6 text-yellow-400" />
-              <div className="w-full">
-                <p className="font-medium text-gray-100">Completed 5 Tests</p>
-                <Progress
-                  value={toComplete5Challenges()}
-                  className="h-2 bg-gray-700"
-                />
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Trophy className="h-6 w-6 text-blue-400" />
-              <div className="w-full">
-                <p className="font-medium text-gray-100">
-                  Scored above 90% three times
-                </p>
-                <Progress value={scoreAbove90()} className="h-2 bg-gray-700" />
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Trophy className="h-6 w-6 text-green-400" />
-              <div className="w-full">
-                <p className="font-medium text-gray-100">First Perfect Score</p>
-                <Progress value={0} className="h-2 bg-gray-700" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gray-800 border border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white">❓ Help</CardTitle>
-            <CardDescription className="text-gray-400">
-              Need assistance or have feedback?
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-2">
-            <Button
-              variant="ghost"
-              className="justify-start text-blue-400 hover:text-blue-300"
-            >
-              <HelpCircle className="mr-2 h-4 w-4" /> Contact Support
-            </Button>
-            <Button
-              variant="ghost"
-              className="justify-start text-blue-400 hover:text-blue-300"
-            >
-              <HelpCircle className="mr-2 h-4 w-4" /> Report a Question
-            </Button>
-            <Button
-              variant="ghost"
-              className="justify-start text-blue-400 hover:text-blue-300"
-            >
-              <HelpCircle className="mr-2 h-4 w-4" /> Leave Feedback
-            </Button>
-          </CardContent>
-        </Card>
-      </section>
-
-      {logoutModal && (
-        <LogoutDialog open={logoutModal} onOpenChange={setLogoutModal} />
-      )}
-    </main>
+                  <div className="flex items-center gap-2 mb-1 sm:mb-0">
+                    <span className="text-sm text-slate-400">{t.date}</span>
+                    <span
+                      className={`font-bold text-sm px-2 py-1 rounded-full ${
+                        t.score >= 90
+                          ? "bg-gradient-to-r from-cyan-400 to-blue-400 text-transparent bg-clip-text"
+                          : t.score >= 75
+                          ? "bg-blue-500/20 text-blue-400"
+                          : "bg-orange-500/20 text-orange-400"
+                      }`}
+                    >
+                      {t.score}%
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500">{t.time} min</p>
+                  <a
+                    href="#"
+                    className="mt-1 sm:mt-0 text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition-colors"
+                  >
+                    <span className="text-sm font-medium">Review</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </a>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </main>
+    </div>
   );
-};
-
-export default Dashboard;
+}

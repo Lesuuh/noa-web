@@ -1,17 +1,14 @@
-// import { db } from "@/firebase";
-// import { collection, getDocs } from "firebase/firestore";
+import { supabase } from "@/supabase";
 
-// type Question = {
-//   id: string;
-//   question: string;
-//   options: string[];
-//   correctAnswer: number;
-// };
+export const fetchQuestions = async () => {
+  const { data, error } = await supabase.from("questions").select("*");
 
-// export const fetchQuestions = async (): Promise<Question[]> => {
-//   const querySnapShot = await getDocs(collection(db, "questions"));
-//   return querySnapShot.docs.map((doc) => ({
-//     id: doc.id,
-//     ...(doc.data() as Omit<Question, "id">),
-//   }));
-// };
+  if (error) {
+    console.error("Error occurred while fetching questions:", error.message);
+    throw error;
+  }
+
+  console.log(data);
+
+  return data || [];
+};
