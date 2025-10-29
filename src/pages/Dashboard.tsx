@@ -25,6 +25,8 @@ import {
 } from "recharts";
 import { useUser } from "@/contexts/UserContext";
 import Loader from "@/components/Loader";
+import { ExamAttempt } from "@/types";
+import { fetchUserExamAttempts } from "@/data/fetchUserData";
 
 const mockHistory = [
   { date: "2024-10-20", score: 92, time: 45 },
@@ -37,9 +39,24 @@ const mockHistory = [
 export default function Dashboard() {
   // getting the user
   const { user, loading } = useUser();
-  console.log(user);
+  const [attempts, setAttempts] = useState<ExamAttempt[]>();
+  const [testLoading, setTestLoading] = useState(false);
 
   // getting the user test history
+  useEffect(() => {
+    if (!user) return;
+
+    const load = async () => {
+      setTestLoading(true);
+      const data = await fetchUserExamAttempts(user.id);
+      setAttempts(data);
+      setTestLoading(false);
+    };
+
+    load();
+  }, [user]);
+
+  console.log(attempts);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);

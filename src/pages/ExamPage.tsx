@@ -16,129 +16,171 @@ import { supabase } from "@/supabase";
 import { useUser } from "@/contexts/UserContext";
 import ErrorModal from "@/components/modals/ErrorModal";
 import Loader from "@/components/Loader";
-
-const TOTAL_TIME = 60 * 180; // 180 minutes in seconds
+import { checkAttemptAllowance, fetchTestDuration } from "@/data/fetchUserData";
 
 export default function ExamPage() {
-  const [allQuestions, setAllQuestions] = useState<Question[]>([]);
   const { user, loading } = useUser();
-  const startedAt = useRef(new Date());
 
-  useEffect(() => {
-    const loadQuestions = async () => {
-      try {
-        const questions = await fetchQuestions();
-        setAllQuestions(questions);
-      } catch (err) {
-        console.error("Failed to load questions", err);
-      }
-    };
-    loadQuestions();
-  }, []);
-
+  // -----------------------------
+  // State
+  // -----------------------------
+  const [allQuestions, setAllQuestions] = useState<Question[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [timeRemaining, setTimeRemaining] = useState(TOTAL_TIME);
+  const [timeRemaining, setTimeRemaining] = useState<number>(10800);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   const [jumpInput, setJumpInput] = useState("");
   const [showNavigator, setShowNavigator] = useState(false);
   const [error, setError] = useState<string>("");
   const [examAttempt, setExamAttempt] = useState<ExamAttempt | undefined>();
+  const [submitting, setSubmitting] = useState(false);
 
-  console.log(examAttempt);
-
-  const handleSubmit = useCallback(async () => {
-    if (!user?.id) {
-      setError("You must be logged in to submit this exam.");
-      return;
-    }
-
-    let totalScore = 0;
-    allQuestions.forEach((question) => {
-      const userAnswer = answers[question.id];
-      if (userAnswer === question.correct_answer) {
-        totalScore++;
-      }
-    });
-
-    setScore(totalScore);
-    const shuffledOrderId = allQuestions.map((q) => q.id);
-    const submitted_at = new Date();
-    try {
-      // save to database
-      const { data, error } = await supabase
-        .from("exam_attempts")
-        .insert({
-          user_id: user?.id,
-          exam_id: allQuestions[0]?.exam_id,
-          score: totalScore,
-          question_order: shuffledOrderId,
-          answers,
-          started_at: startedAt.current,
-          submitted_at: submitted_at,
-          duration_seconds: Math.floor(
-            (submitted_at.getTime() - startedAt.current.getTime()) / 1000
-          ),
-          status: "completed",
-        })
-        .select()
-        .single();
-
-      if (error) {
-        setError(error.message);
-        return;
-      }
-
-      console.log(data);
-      setExamAttempt(data ?? undefined);
-      setIsSubmitted(true);
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Unexpected error occurred";
-      console.error(message);
-      setError(message);
-      return;
-    }
-  }, [allQuestions, user?.id, answers]);
+  const startedAt = useRef(new Date());
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  // Timer effect
+
+  const answeredCount = Object.keys(answers).length;
+  const question = allQuestions[currentQuestion];
+  const isTimeWarning = timeRemaining < 60;
+
+  // -----------------------------
+  // Restore saved progress from localStorage
+  // -----------------------------
   useEffect(() => {
-    if (isSubmitted) return;
+    const savedAnswers = localStorage.getItem("exam_answers");
+    const savedTimeRemaining = localStorage.getItem("time_remaining");
+    if (savedAnswers) setAnswers(JSON.parse(savedAnswers));
+    if (savedTimeRemaining) setTimeRemaining(Number(savedTimeRemaining));
+  }, []);
 
-    intervalRef.current = setInterval(() => {
-      setTimeRemaining((prev) => {
-        // trigger submit on timeout
-        if (prev <= 1) {
-          clearInterval(intervalRef.current!);
-          handleSubmit();
-          return 0;
+  // -----------------------------
+  // Autosave progress to localStorage every 30s
+  // -----------------------------
+  useEffect(() => {
+    const autosave = setInterval(() => {
+      localStorage.setItem("exam_answers", JSON.stringify(answers));
+      localStorage.setItem("time_remaining", String(timeRemaining));
+    }, 30000);
+
+    return () => clearInterval(autosave);
+  }, [answers, timeRemaining]);
+
+  // -----------------------------
+  // Sync answers to Supabase every 60s
+  // -----------------------------
+  useEffect(() => {
+    if (!examAttempt?.id) return;
+
+    const syncInterval = setInterval(async () => {
+      try {
+        await supabase.from("exam_attempts").update({
+          answers,
+          duration_seconds: 10800 - timeRemaining,
+        });
+      } catch (err) {
+        console.error("Failed to sync", err);
+      }
+    }, 60000);
+
+    return () => clearInterval(syncInterval);
+  }, [answers, timeRemaining, examAttempt?.id]);
+
+  // -----------------------------
+  // Warn user before accidental refresh/close
+  // -----------------------------
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!isSubmitted) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isSubmitted]);
+
+  // -----------------------------
+  // Load exam questions and duration
+  // -----------------------------
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const initExam = async () => {
+      try {
+        // Check if user is allowed
+        const { allowed, message } = await checkAttemptAllowance(user.id);
+        if (!allowed) {
+          setError(message || "You’ve exceeded your free attempts.");
+          return;
         }
-        return prev - 1;
-      });
-    }, 1000);
 
-    return () => clearInterval(intervalRef.current!);
-  }, [handleSubmit, isSubmitted]);
+        // Fetch test duration
+        const { testDuration } = await fetchTestDuration();
+        const durationSeconds = testDuration[0]?.duration_seconds ?? 10800;
+        setTimeRemaining(durationSeconds);
 
+        // Fetch questions
+        const questions = await fetchQuestions();
+        if (!questions.length) {
+          setError("No questions available for this exam.");
+          return;
+        }
+        setAllQuestions(questions);
+      } catch (err) {
+        console.error("Exam init failed", err);
+        setError("Could not start exam. Please retry.");
+      }
+    };
+
+    initExam();
+  }, [user?.id]);
+
+  // -----------------------------
+  // Create exam attempt in Supabase
+  // -----------------------------
+  useEffect(() => {
+    if (!user?.id || allQuestions.length === 0) return;
+
+    const createAttempt = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("exam_attempts")
+          .insert({
+            user_id: user.id,
+            exam_id: allQuestions[0].exam_id,
+            started_at: startedAt.current,
+            status: "in_progress",
+            question_order: allQuestions.map((q) => q.id),
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        setExamAttempt(data);
+      } catch (err) {
+        console.error("Failed to create attempt", err);
+      }
+    };
+
+    createAttempt();
+  }, [user?.id, allQuestions]);
+
+  // -----------------------------
+  // Handlers
+  // -----------------------------
   const handleOptionChange = (optionIndex: number) => {
     const currentQuestionId = allQuestions[currentQuestion].id;
-    setAnswers((prev) => ({
-      ...prev,
-      [currentQuestionId]: optionIndex,
-    }));
+    setAnswers((prev) => ({ ...prev, [currentQuestionId]: optionIndex }));
   };
 
   const handleNext = () => {
-    if (currentQuestion < allQuestions.length - 1) {
+    if (currentQuestion < allQuestions.length - 1)
       setCurrentQuestion(currentQuestion + 1);
-    }
   };
 
   const handlePrevious = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion(currentQuestion - 1);
-    }
+    if (currentQuestion > 0) setCurrentQuestion(currentQuestion - 1);
   };
 
   const handleJumpToQuestion = () => {
@@ -150,16 +192,74 @@ export default function ExamPage() {
     }
   };
 
-  console.log(currentQuestion);
-  console.log(answers);
+  const handleSubmit = useCallback(async () => {
+    if (submitting) return;
+    if (!user?.id) {
+      setError("You must be logged in to submit this exam.");
+      return;
+    }
 
-  const question = allQuestions[currentQuestion];
-  const isTimeWarning = timeRemaining < 60;
-  const answeredCount = Object.keys(answers).length;
+    let totalScore = 0;
+    allQuestions.forEach((q) => {
+      if (answers[q.id] === q.correct_answer) totalScore++;
+    });
+    setScore(totalScore);
 
-  console.log(answers[currentQuestion]);
-  // const scorePercentage = Math.round((score / allQuestions.length) * 100);
+    const submitted_at = new Date();
+    try {
+      setSubmitting(true);
+      const { data, error } = await supabase
+        .from("exam_attempts")
+        .update({
+          score: totalScore,
+          answers,
+          submitted_at,
+          duration_seconds: Math.floor(
+            (submitted_at.getTime() - startedAt.current.getTime()) / 1000
+          ),
+          status: "completed",
+        })
+        .eq("id", examAttempt?.id)
+        .select()
+        .single();
 
+      if (error) setError(error.message);
+
+      setExamAttempt(data ?? undefined);
+      setIsSubmitted(true);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Unexpected error occurred";
+      setError(message);
+    } finally {
+      setSubmitting(false);
+    }
+  }, [submitting, user?.id, allQuestions, answers, examAttempt?.id]);
+
+  // -----------------------------
+  // Timer countdown
+  // -----------------------------
+
+  useEffect(() => {
+    if (isSubmitted || !examAttempt) return;
+
+    intervalRef.current = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev <= 1) {
+          clearInterval(intervalRef.current!);
+          handleSubmit();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(intervalRef.current!);
+  }, [handleSubmit, isSubmitted, examAttempt]);
+
+  // -----------------------------
+  // Render loading / submitted / main UI
+  // -----------------------------
   if (allQuestions.length === 0)
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-slate-900">
@@ -167,7 +267,8 @@ export default function ExamPage() {
       </div>
     );
 
-  if (isSubmitted) {
+  if (loading) return <Loader />;
+  if (isSubmitted)
     return (
       <ExamResult
         allQuestions={allQuestions}
@@ -175,11 +276,7 @@ export default function ExamPage() {
         totalQuestions={allQuestions.length}
       />
     );
-  }
 
-  if (loading) {
-    return <Loader />;
-  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-50">
       {/* Header */}
@@ -392,7 +489,7 @@ export default function ExamPage() {
                     className={`w-10 h-10 rounded-lg font-semibold text-xs transition-all duration-200 flex items-center justify-center ${
                       idx === currentQuestion
                         ? "bg-gradient-to-br from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/20"
-                        : answers[idx] !== undefined
+                        : answers[allQuestions[idx].id] !== undefined
                         ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30"
                         : "bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-800"
                     }`}
