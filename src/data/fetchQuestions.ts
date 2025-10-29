@@ -8,7 +8,18 @@ export const fetchQuestions = async () => {
     throw error;
   }
 
-  console.log(data);
+  const shuffledQuestions = data.sort(() => Math.random() - 0.5);
 
-  return data || [];
+  console.log(shuffledQuestions);
+
+  return shuffledQuestions || [];
 };
+
+// fisher-yates
+// function shuffle(array) {
+//   for (let i = array.length - 1; i > 0; i--) {
+//     const j = Math.floor(Math.random() * (i + 1));
+//     [array[i], array[j]] = [array[j], array[i]];
+//   }
+//   return array;
+// }

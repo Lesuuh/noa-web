@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import {
   ArrowRight,
   Trophy,
-  User2Icon,
   Settings,
   HelpCircle,
   Target,
@@ -24,11 +23,8 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-
-const mockUserDetails = {
-  name: "Lesuuh",
-  photoURL: null,
-};
+import { useUser } from "@/contexts/UserContext";
+import Loader from "@/components/Loader";
 
 const mockHistory = [
   { date: "2024-10-20", score: 92, time: 45 },
@@ -39,11 +35,16 @@ const mockHistory = [
 ];
 
 export default function Dashboard() {
+  // getting the user
+  const { user, loading } = useUser();
+  console.log(user);
+
+  // getting the user test history
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
 
   const history = mockHistory;
-  const userDetails = mockUserDetails;
 
   // Statistics
   const totalTestTaken = history.length;
@@ -146,6 +147,10 @@ export default function Dashboard() {
     },
   ];
 
+  if (loading) {
+    return <Loader />;
+  }
+
   return (
     <div className="flex min-h-screen bg-slate-950 text-slate-50">
       {/* Sidebar */}
@@ -225,7 +230,7 @@ export default function Dashboard() {
             <h2 className="text-3xl sm:text-4xl font-bold">
               Welcome back,{" "}
               <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                {userDetails.name}
+                {user?.full_name}
               </span>
               {/* , Continue your journey toward excellence */}
             </h2>
@@ -233,7 +238,7 @@ export default function Dashboard() {
               Monitor your performance. Strengthen your professional excellence.
             </p>
           </div>
-          <div className="hidden md:flex-shrink-0">
+          {/* <div className="hidden md:flex-shrink-0">
             {userDetails.photoURL ? (
               <img
                 src={userDetails.photoURL || "/placeholder.svg"}
@@ -245,7 +250,7 @@ export default function Dashboard() {
                 <User2Icon className="text-white w-6 h-6 sm:w-7 sm:h-7" />
               </div>
             )}
-          </div>
+          </div> */}
         </div>
 
         {/* KPIs Grid */}

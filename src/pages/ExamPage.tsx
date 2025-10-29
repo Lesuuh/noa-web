@@ -1,6 +1,4 @@
-"use client";
-
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -11,14 +9,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { fetchQuestions } from "@/data/fetchQuestions";
-import { Question } from "@/types";
+import { ExamAttempt, Question } from "@/types";
 import ExamResult from "./ExamResult";
 import { TimerDisplay } from "@/components/TimerDisplay";
+import { supabase } from "@/supabase";
+import { useUser } from "@/contexts/UserContext";
+import ErrorModal from "@/components/modals/ErrorModal";
+import Loader from "@/components/Loader";
 
 const TOTAL_TIME = 60 * 180; // 180 minutes in seconds
 
 export default function ExamPage() {
   const [allQuestions, setAllQuestions] = useState<Question[]>([]);
+  const { user, loading } = useUser();
+  const startedAt = useRef(new Date());
 
   useEffect(() => {
     const loadQuestions = async () => {
@@ -33,26 +37,70 @@ export default function ExamPage() {
   }, []);
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [answers, setAnswers] = useState<Record<string, number>>({});
   const [timeRemaining, setTimeRemaining] = useState(TOTAL_TIME);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   const [jumpInput, setJumpInput] = useState("");
   const [showNavigator, setShowNavigator] = useState(false);
+  const [error, setError] = useState<string>("");
+  const [examAttempt, setExamAttempt] = useState<ExamAttempt | undefined>();
 
-  const handleSubmit = useCallback(() => {
-    let calculatedScore = 0;
-    Object.entries(answers).forEach(([index, answer]) => {
-      if (answer === allQuestions[Number(index)].correctAnswer) {
-        calculatedScore += 1;
+  console.log(examAttempt);
+
+  const handleSubmit = useCallback(async () => {
+    if (!user?.id) {
+      setError("You must be logged in to submit this exam.");
+      return;
+    }
+
+    let totalScore = 0;
+    allQuestions.forEach((question) => {
+      const userAnswer = answers[question.id];
+      if (userAnswer === question.correct_answer) {
+        totalScore++;
       }
     });
-    setScore(calculatedScore);
-    setIsSubmitted(true);
-  }, [answers, allQuestions]);
 
-  console.log("check");
+    setScore(totalScore);
+    const shuffledOrderId = allQuestions.map((q) => q.id);
+    const submitted_at = new Date();
+    try {
+      // save to database
+      const { data, error } = await supabase
+        .from("exam_attempts")
+        .insert({
+          user_id: user?.id,
+          exam_id: allQuestions[0]?.exam_id,
+          score: totalScore,
+          question_order: shuffledOrderId,
+          answers,
+          started_at: startedAt.current,
+          submitted_at: submitted_at,
+          duration_seconds: Math.floor(
+            (submitted_at.getTime() - startedAt.current.getTime()) / 1000
+          ),
+          status: "completed",
+        })
+        .select()
+        .single();
 
+      if (error) {
+        setError(error.message);
+        return;
+      }
+
+      console.log(data);
+      setExamAttempt(data ?? undefined);
+      setIsSubmitted(true);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Unexpected error occurred";
+      console.error(message);
+      setError(message);
+      return;
+    }
+  }, [allQuestions, user?.id, answers]);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   // Timer effect
   useEffect(() => {
@@ -74,9 +122,10 @@ export default function ExamPage() {
   }, [handleSubmit, isSubmitted]);
 
   const handleOptionChange = (optionIndex: number) => {
+    const currentQuestionId = allQuestions[currentQuestion].id;
     setAnswers((prev) => ({
       ...prev,
-      [currentQuestion]: optionIndex,
+      [currentQuestionId]: optionIndex,
     }));
   };
 
@@ -101,10 +150,14 @@ export default function ExamPage() {
     }
   };
 
+  console.log(currentQuestion);
+  console.log(answers);
+
   const question = allQuestions[currentQuestion];
   const isTimeWarning = timeRemaining < 60;
   const answeredCount = Object.keys(answers).length;
 
+  console.log(answers[currentQuestion]);
   // const scorePercentage = Math.round((score / allQuestions.length) * 100);
 
   if (allQuestions.length === 0)
@@ -124,6 +177,9 @@ export default function ExamPage() {
     );
   }
 
+  if (loading) {
+    return <Loader />;
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-50">
       {/* Header */}
@@ -204,7 +260,8 @@ export default function ExamPage() {
             {/* Options */}
             <div className="space-y-3">
               {question.options.map((option, idx) => {
-                const isSelected = answers[currentQuestion] === idx;
+                const isSelected = answers[question.id] === idx;
+
                 return (
                   <button
                     key={idx}
@@ -368,6 +425,9 @@ export default function ExamPage() {
           </div>
         </div>
       </main>
+
+      {/* error modal */}
+      {error && <ErrorModal message={error} onClose={() => setError("")} />}
     </div>
   );
 }
