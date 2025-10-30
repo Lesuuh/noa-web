@@ -26,10 +26,13 @@ export interface ExamAttempt {
   exam_id: string;
   score: number;
   started_at: string; // or Date
-  completed_at: string | null;
+  submitted_at: string;
   answers: {
     questionId: string;
     selectedOptionIndex: number;
   }[];
   question_order: string[]; // array of UUIDs in order presented
+  isPaid: boolean;
+  status: "Completed" | "In Progress";
+  duration_seconds: number;
 }

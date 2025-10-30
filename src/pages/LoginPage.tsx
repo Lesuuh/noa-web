@@ -37,7 +37,7 @@ const LoginPage = () => {
       return;
     }
     setLoading(false);
-    navigate("/");
+    navigate("/dashboard");
   };
 
   //   const handleGoogleLogin = async () => {

@@ -1,0 +1,45 @@
+// Fetch completed for analytics
+const completedAttempts = await supabase
+  .from("exam_attempts")
+  .select("*")
+  .eq("user_id", userId)
+  .eq("status", "completed")
+  .order("started_at", { ascending: false });
+
+// Optionally fetch in-progress to show a "Resume Exam" button
+const inProgressAttempt = await supabase
+  .from("exam_attempts")
+  .select("*")
+  .eq("user_id", userId)
+  .eq("status", "in_progress")
+  .order("started_at", { ascending: false })
+  .limit(1)
+  .single();
+
+// Then in your UI:
+{inProgressAttempt && (
+  <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 mb-6">
+    <p className="text-amber-400">You have an exam in progress</p>
+    <Button onClick={() => navigate('/exam')}>Resume Exam</Button>s
+  </div>
+)}
+
+
+
+
+primary: {
+  DEFAULT: '#059669', // green-600
+  light: '#D1FAE5', // green-100
+  dark: '#065F46' // green-800
+},
+secondary: {
+  DEFAULT: '#2563EB', // blue-600
+  light: '#DBEAFE',
+  dark: '#1E3A8A'
+},
+neutral: {
+  DEFAULT: '#64748B', // slate-500
+  bg: '#F8FAFC',
+  border: '#E2E8F0',
+  text: '#0F172A'
+}

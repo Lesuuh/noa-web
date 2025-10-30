@@ -32,7 +32,7 @@ export default function AuthGuard() {
       }
     );
 
-    listener.subscription.unsubscribe();
+    return () => listener.subscription.unsubscribe();
   }, [navigate]);
 
   if (loading) {

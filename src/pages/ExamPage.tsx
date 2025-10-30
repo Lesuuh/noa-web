@@ -35,6 +35,8 @@ export default function ExamPage() {
   const [error, setError] = useState<string>("");
   const [examAttempt, setExamAttempt] = useState<ExamAttempt | undefined>();
   const [submitting, setSubmitting] = useState(false);
+  const [attemptCount, setAttemptCount] = useState<number>(0);
+  const [loadingExam, setLoadingExam] = useState(true); // Add this
 
   const startedAt = useRef(new Date());
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -100,20 +102,37 @@ export default function ExamPage() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isSubmitted]);
 
+  // Clear localStorage after successful submission
+  useEffect(() => {
+    if (isSubmitted) {
+      localStorage.removeItem("exam_answers");
+      localStorage.removeItem("time_remaining");
+    }
+  }, [isSubmitted]);
+
   // -----------------------------
   // Load exam questions and duration
   // -----------------------------
+
+  // Update the initExam function:
   useEffect(() => {
     if (!user?.id) return;
 
     const initExam = async () => {
+      setLoadingExam(true); // Start loading
       try {
         // Check if user is allowed
-        const { allowed, message } = await checkAttemptAllowance(user.id);
+        const { allowed, message, attempts } = await checkAttemptAllowance(
+          user.id
+        );
+
         if (!allowed) {
-          setError(message || "You’ve exceeded your free attempts.");
+          setError(message || "You've exceeded your free attempts.");
+          setLoadingExam(false); // Stop loading even if blocked
           return;
         }
+
+        setAttemptCount(attempts || 0);
 
         // Fetch test duration
         const { testDuration } = await fetchTestDuration();
@@ -124,12 +143,15 @@ export default function ExamPage() {
         const questions = await fetchQuestions();
         if (!questions.length) {
           setError("No questions available for this exam.");
+          setLoadingExam(false);
           return;
         }
         setAllQuestions(questions);
+        setLoadingExam(false); // Stop loading after success
       } catch (err) {
         console.error("Exam init failed", err);
         setError("Could not start exam. Please retry.");
+        setLoadingExam(false); // Stop loading on error
       }
     };
 
@@ -259,6 +281,20 @@ export default function ExamPage() {
 
   // -----------------------------
   // Render loading / submitted / main UI
+
+  if (loading || loadingExam) return <Loader />;
+
+  // Show error modal if blocked (before checking allQuestions)
+  if (error && allQuestions.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-50 flex items-center justify-center p-4">
+        <ErrorModal
+          message={error}
+          onClose={() => (window.location.href = "/dashboard")}
+        />
+      </div>
+    );
+  }
   // -----------------------------
   if (allQuestions.length === 0)
     return (
@@ -267,7 +303,6 @@ export default function ExamPage() {
       </div>
     );
 
-  if (loading) return <Loader />;
   if (isSubmitted)
     return (
       <ExamResult
@@ -291,6 +326,7 @@ export default function ExamPage() {
               <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
                 Question {currentQuestion + 1} of {allQuestions.length}
               </p>
+              Attempt {attemptCount} of 10
             </div>
 
             {/* Center: Progress Bar (hidden on very small screens) */}
