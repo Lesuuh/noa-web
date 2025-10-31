@@ -11,7 +11,6 @@ import {
   X,
   ArrowRight,
   Star,
-  ListStart,
 } from "lucide-react";
 
 import {
@@ -31,7 +30,7 @@ import { fetchUserExamAttempts } from "@/data/fetchUserData";
 import { supabase } from "@/supabase";
 import { formatAttemptTime } from "@/components/formattedDateTime";
 import { AnimatePresence, motion } from "motion/react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   const { user, loading } = useUser();
@@ -132,11 +131,9 @@ export default function Dashboard() {
   const navItems = [
     { label: "Dashboard", icon: Target, href: "dashboard" },
     { label: "Take Exam", icon: Zap, href: "exam" },
-    { label: "Achievements", icon: Trophy, href: "#" },
     { label: "Settings", icon: Settings, href: "#" },
     { label: "Support", icon: HelpCircle, href: "#" },
     { label: "Freemium", icon: Star, href: "upgrade" },
-    { label: "Start Exam", icon: ListStart, href: "start" },
   ];
 
   const kpiData = [
@@ -454,13 +451,13 @@ export default function Dashboard() {
                     <p className="text-xs text-slate-500">
                       {(t.duration_seconds / 60).toFixed(0)} min
                     </p>
-                    <a
-                      href="#"
+                    <Link
+                      to={`/review/${t.id}`}
                       className="mt-1 sm:mt-0 text-emerald-600 hover:text-emerald-700 flex items-center gap-1 transition-colors"
                     >
                       <span className="text-sm font-medium">Review</span>
                       <ArrowRight className="w-4 h-4" />
-                    </a>
+                    </Link>
                   </div>
                 );
               })

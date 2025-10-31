@@ -1,1 +1,65 @@
 @import "tailwindcss";
+
+/* ===============================
+   🎨 THEME VARIABLES
+   =============================== */
+:root {
+  /* COLORS */
+  --color-primary-base: #059669; /* emerald-600 */
+  --color-primary-dark: oklch(43.2% 0.095 166.913); /* emerald-800 */
+  --color-primary-light: oklch(97.9% 0.021 166.113);
+
+  --color-accent-base: #0891b2; /* cyan-600 */
+  --color-accent-dark: #0e7490; /* cyan-700 */
+  --color-warning-base: #f97316; /* orange-500 */
+  --color-danger-base: #dc2626; /* red-600 */
+  --color-success-base: #16a34a; /* green-600 */
+
+  --color-white-muted: #f8fafc; /* subtle backgrounds */
+  --color-border-base: #e2e8f0; /* standard border */
+  --color-border-muted: #cbd5e1; /* lighter border */
+  --color-text-black: #0f172a; /* main text */
+  --color-text-muted: #475569; /* secondary text */
+  --color-white: #ffffff;
+
+  /* TYPOGRAPHY */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-size-xxs: 0.625rem;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-4xl: 2.25rem;
+
+  /* SPACING */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+
+  /* RADIUS */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  /* SHADOWS */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 15px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 12px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* ===============================
+   🌍 GLOBAL RESET
+   =============================== */
+body {
+  background-color: var(--color-white);
+  color: var(--color-text-black);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

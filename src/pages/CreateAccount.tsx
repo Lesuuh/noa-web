@@ -59,7 +59,7 @@ const CreateAccount = () => {
     }
 
     setLoading(false);
-    navigate("/dashboard");
+    navigate("/");
     setLoading(false);
   };
 

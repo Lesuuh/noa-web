@@ -37,6 +37,7 @@ export const UserContextProvider = ({
       } = await supabase.auth.getSession();
 
       if (!session?.user.id) {
+        setUser(null);
         setLoading(false);
         return;
       }
@@ -46,15 +47,21 @@ export const UserContextProvider = ({
         .eq("id", session.user.id)
         .single();
 
-      if (error) {
-        console.error(error);
-      } else {
-        setUser(profile);
+      if (error || !profile) {
+        setUser(null);
+        setLoading(false);
+        return;
       }
+      setUser(profile);
       setLoading(false);
     };
     fetchUser();
   }, []);
+
+  // Only render children when loading is false and user is either null or valid
+  if (loading) {
+    return null;
+  }
 
   return (
     <UserContext.Provider value={{ user, loading }}>

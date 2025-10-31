@@ -81,7 +81,7 @@ export default function ExamResult({
           </div>
 
           <Button
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/")}
             className="w-full bg-cyan-500 hover:bg-cyan-400 text-white font-semibold py-2 rounded-lg transition-colors"
           >
             Go home

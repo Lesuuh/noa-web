@@ -27,19 +27,6 @@ const inProgressAttempt = await supabase
 
 
 
-primary: {
-  DEFAULT: '#059669', // green-600
-  light: '#D1FAE5', // green-100
-  dark: '#065F46' // green-800
-},
-secondary: {
-  DEFAULT: '#2563EB', // blue-600
-  light: '#DBEAFE',
-  dark: '#1E3A8A'
-},
-neutral: {
-  DEFAULT: '#64748B', // slate-500
-  bg: '#F8FAFC',
-  border: '#E2E8F0',
-  text: '#0F172A'
-}
+add freemium
+free users should see only 50 questions
+freemium users should see all questions

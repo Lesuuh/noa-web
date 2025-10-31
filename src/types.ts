@@ -28,9 +28,8 @@ export interface ExamAttempt {
   started_at: string; // or Date
   submitted_at: string;
   answers: {
-    questionId: string;
-    selectedOptionIndex: number;
-  }[];
+    [questionId: string]: number;
+  };
   question_order: string[]; // array of UUIDs in order presented
   isPaid: boolean;
   status: "Completed" | "In Progress";

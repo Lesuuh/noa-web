@@ -3,9 +3,10 @@ import { Outlet, useNavigate } from "react-router-dom";
 import Loader from "./Loader";
 import { useEffect, useState } from "react";
 import { supabase } from "@/supabase";
+import { useUser } from "@/contexts/UserContext";
 
 export default function AuthGuard() {
-  const [loading, setLoading] = useState(true);
+  const { loading, user } = useUser();
   const [authenticated, setAuthenticated] = useState(false);
   const navigate = useNavigate();
 
@@ -13,11 +14,11 @@ export default function AuthGuard() {
     const getSession = async () => {
       const { data } = await supabase.auth.getSession();
       if (!data.session) {
+        setAuthenticated(false);
         navigate("/login");
       } else {
         setAuthenticated(true);
       }
-      setLoading(false);
     };
 
     getSession();
@@ -39,7 +40,8 @@ export default function AuthGuard() {
     return <Loader />;
   }
 
-  if (!authenticated) return null;
+  // Only render protected content if authenticated and user exists
+  if (!authenticated || !user) return null;
 
   return <Outlet />;
 }
