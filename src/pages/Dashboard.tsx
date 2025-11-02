@@ -45,12 +45,12 @@ export default function Dashboard() {
   // Load user exam attempts
   useEffect(() => {
     if (!user) return;
+    setTestLoading(true);
     const load = async () => {
-      setTestLoading(true);
       const data = await fetchUserExamAttempts(user.id);
       setAttempts(data);
-      setTestLoading(false);
     };
+    setTestLoading(false);
     load();
   }, [user]);
 
@@ -65,7 +65,12 @@ export default function Dashboard() {
     : 0;
   const totalTimeInMinutes =
     history.reduce((acc, test) => acc + test.duration_seconds, 0) / 60;
-  const averageTime = (totalTimeInMinutes / totalTestTaken).toFixed(2);
+  const averageTime =
+    (totalTimeInMinutes &&
+      totalTestTaken &&
+      (totalTimeInMinutes / totalTestTaken).toFixed(2)) ||
+    0;
+  console.log(totalTimeInMinutes, totalTestTaken);
 
   const highScores = history.filter((t) => t.score > 90);
   const scoreAbove90 = () => {
@@ -164,7 +169,7 @@ export default function Dashboard() {
     },
     {
       label: "Avg. Completion Time",
-      value: `${averageTime || 5} min`,
+      value: `${averageTime} min`,
       icon: TimerIcon,
       bgColor: "bg-cyan-50", // Changed from blue-50
       textColor: "text-cyan-700", // Changed from blue-700

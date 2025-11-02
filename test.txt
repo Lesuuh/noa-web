@@ -30,3 +30,11 @@ const inProgressAttempt = await supabase
 add freemium
 free users should see only 50 questions
 freemium users should see all questions
+
+
+
+
+challenges
+1. my app was flickering and showing fallback data during loading and then after loading it showed actual data, but then i discovered that i put the loading state setter inside the function that actually called api for the data instead of outside,i fixed that and then implemented caching
+
+2. i sucked at design

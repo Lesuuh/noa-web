@@ -19,7 +19,10 @@ export default function ExamReview() {
 
   const [attempts, setAttempts] = useState<ExamAttempt | null>(null);
   const [allQuestions, setAllQuestions] = useState<Question[]>([]);
-  const [loading, setLoading] = useState(false);
+
+  const [loadingAttempts, setLoadingAttempts] = useState(true);
+  const [loadingQuestions, setLoadingQuestions] = useState(true);
+  const loading = loadingAttempts || loadingQuestions;
 
   const answeredQuestions = Object.keys(attempts?.answers || {}).length;
 
@@ -59,7 +62,6 @@ export default function ExamReview() {
     const getAllQuestions = async () => {
       if (user && id) {
         try {
-          setLoading(true);
           const { data, error } = await supabase.from("questions").select("*");
 
           if (error) {
@@ -75,7 +77,7 @@ export default function ExamReview() {
         } catch (error) {
           console.error("Error fetching attempt data:", error);
         } finally {
-          setLoading(false);
+          setLoadingQuestions(false);
         }
       }
     };
@@ -89,7 +91,6 @@ export default function ExamReview() {
     const getAllAttempts = async () => {
       if (user && id) {
         try {
-          setLoading(true);
           const { data, error } = await supabase
             .from("exam_attempts")
             .select("*")
@@ -103,7 +104,7 @@ export default function ExamReview() {
         } catch (error) {
           console.error("Error fetching attempt data:", error);
         } finally {
-          setLoading(false);
+          setLoadingAttempts(false);
         }
       }
     };
@@ -157,16 +158,15 @@ export default function ExamReview() {
     totalQuestions &&
     Math.round((answeredQuestions / totalQuestions.length) * 100);
 
-  if (loading) {
-    return <Loader />;
-  }
+  if (loading) return <Loader />;
+  if (!attempts || !allQuestions.length) return <Loader />;
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 p-4 md:p-8">
       {/* Header */}
       <div className="flex items-center gap-3 mb-8">
         <a
-          href="/dashboard"
+          href="/"
           className="p-2 rounded-md hover:bg-slate-200 transition-colors"
         >
           <ChevronLeft className="w-5 h-5 text-slate-700" />
@@ -277,13 +277,19 @@ export default function ExamReview() {
           const isCorrect = q.userAnswer === q.correctAnswer;
           const isUnanswered = q.userAnswer === null;
           const isExpanded = selectedQuestion === q.id;
+          const anyExpanded = selectedQuestion !== null;
           const isIncorrect =
             q.userAnswer !== q.correctAnswer && q.userAnswer !== null;
 
           return (
             <div
               key={q.id}
-              className="bg-white border border-slate-200 rounded-lg overflow-hidden hover:border-slate-300 transition-colors"
+              className={`bg-slate-200/70 backdrop-blur-sm border border-slate-200 rounded-lg overflow-hidden hover:border-slate-300 transition-colors
+    ${
+      anyExpanded && selectedQuestion !== q.id
+        ? "blur-[1px] opacity-50 "
+        : ""
+    }`}
             >
               <div
                 className="p-4 cursor-pointer flex items-start gap-3"
