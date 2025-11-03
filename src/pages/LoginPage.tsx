@@ -2,11 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/supabase";
-// import { googleLogin, login } from "@/hooks/useAuth";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 interface LoginDetailsProps {
   email: string;
@@ -34,120 +34,130 @@ const LoginPage = () => {
     });
     if (error) {
       setServerError(error.message);
+      setLoading(false);
       return;
     }
     setLoading(false);
     navigate("/");
   };
 
-  //   const handleGoogleLogin = async () => {
-  //     const user = await googleLogin();
-  //     if (user) {
-  //       navigate("/dashboard");
-  //     } else {
-  //       navigate("/");
-  //     }
-  //   };
-
-  const pageStyle = {
-    backgroundImage: `url('/Computer Center After Dark.jpeg')`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    minHeight: "100vh",
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin },
+    });
+    if (error) setServerError(error.message);
   };
 
   return (
-    <section
-      style={pageStyle}
-      className="relative flex justify-center items-center w-full"
-    >
-      <div className="absolute inset-0 bg-black/80" />
-      <div className="relative z-10 w-full max-w-md bg-gray-800 p-8 rounded-xl shadow-lg">
-        {/* Header */}
+    <section className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      {/* Left brand column */}
+      <motion.div
+        initial={{ opacity: 0, x: -50 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="hidden lg:flex flex-col justify-center items-center text-center w-1/2 p-10"
+      >
+        <h1 className="text-4xl font-extrabold text-emerald-700 mb-4">
+          NOA Practice Portal
+        </h1>
+        <p className="text-slate-600 text-lg leading-relaxed max-w-md">
+          Prepare smarter, track progress, and dominate your CBT exams — all in
+          one clean dashboard.
+        </p>
+        <img
+          src="/login.svg"
+          alt="Login illustration"
+          className="mt-10 w-3/4"
+        />
+      </motion.div>
+
+      {/* Right login form */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-slate-200"
+      >
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-semibold text-gray-100">Welcome back</h2>
-          <p className="text-gray-400 text-sm">
-            Log in with your Google account
+          <h2 className="text-2xl font-semibold text-slate-800">
+            Welcome Back 👋
+          </h2>
+          <p className="text-slate-500 text-sm mt-1">
+            Log in to continue your exam journey
           </p>
         </div>
 
-        {/* Google Login Button */}
+        {/* Google login */}
         <Button
-          //   onClick={handleGoogleLogin}
+          onClick={handleGoogleLogin}
           variant="outline"
-          className="w-full mb-6 flex items-center justify-center gap-2 bg-gray-700 text-gray-100 border-gray-600 hover:bg-gray-600 hover:text-gray-50 transition-all duration-300"
+          className="w-full flex items-center justify-center gap-2 border-slate-300 bg-slate-50 hover:bg-slate-100 transition-all"
         >
           <FcGoogle className="text-xl" />
-          Login with Google
+          Continue with Google
         </Button>
 
         {/* Divider */}
         <div className="relative my-6 text-center text-sm">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-600" />
+            <div className="w-full border-t border-slate-200" />
           </div>
-          <span className="relative z-10 bg-gray-800 px-2 text-gray-400">
-            Or continue with
+          <span className="relative z-10 bg-white px-2 text-slate-500">
+            or log in with email
           </span>
         </div>
 
-        {/* Login Form */}
+        {/* Login form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {serverError && (
-            <p className="text-sm text-red-400 bg-red-500/10 p-2 rounded-md">
+            <p className="text-sm text-red-500 bg-red-100/60 p-2 rounded-md border border-red-200">
               {serverError}
             </p>
           )}
+
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium mb-1 text-gray-200"
+              className="block text-sm font-medium mb-1 text-slate-700"
             >
-              Email
+              Email Address
             </label>
             <input
               type="email"
               {...register("email", { required: "Enter your email" })}
-              placeholder="johndoe@yourmail.com"
-              required
-              className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+              placeholder="you@example.com"
+              className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
             />
             {errors.email?.message && (
-              <p className="text-sm text-red-400 mt-1">
+              <p className="text-sm text-red-500 mt-1">
                 {errors.email.message as string}
               </p>
             )}
           </div>
 
           <div>
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center mb-1">
               <label
                 htmlFor="password"
-                className="block text-sm font-medium mb-1 text-gray-200"
+                className="text-sm font-medium text-slate-700"
               >
                 Password
               </label>
-              <p className="text-sm mb-1 text-blue-400 hover:text-blue-300 cursor-pointer transition-colors duration-200">
-                Forget your password?
-              </p>
+              <button
+                type="button"
+                className="text-sm text-emerald-600 hover:text-emerald-700"
+              >
+                Forgot password?
+              </button>
             </div>
             <input
               type="password"
               {...register("password", { required: "Enter your password" })}
-              placeholder="Enter password"
-              required
-              className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+              placeholder="••••••••"
+              className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
             />
             {errors.password?.message && (
-              <p className="text-sm text-red-400 mt-1">
+              <p className="text-sm text-red-500 mt-1">
                 {errors.password.message as string}
-              </p>
-            )}
-          </div>
-          <div>
-            {errors.root?.message && (
-              <p className="text-sm text-red-400 mt-1">
-                {errors.root.message as string}
               </p>
             )}
           </div>
@@ -155,23 +165,22 @@ const LoginPage = () => {
           <Button
             type="submit"
             disabled={isSubmitting || !isValid || !isDirty || loading}
-            className="w-full px-6 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-500 shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-6 py-3 rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Signing in..." : "Login"}
           </Button>
         </form>
 
-        {/* Redirect */}
-        <p className="text-sm text-center mt-4 text-gray-400">
-          Don't have an account?{" "}
+        <p className="text-sm text-center mt-6 text-slate-500">
+          Don’t have an account?{" "}
           <span
             onClick={() => navigate("/create-account")}
-            className="text-blue-400 cursor-pointer hover:text-blue-300 transition-colors duration-200"
+            className="text-emerald-600 font-medium cursor-pointer hover:text-emerald-700"
           >
-            Create account
+            Create one
           </span>
         </p>
-      </div>
+      </motion.div>
     </section>
   );
 };

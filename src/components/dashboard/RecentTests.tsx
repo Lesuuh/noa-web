@@ -6,7 +6,7 @@ import { ExamAttempt } from "@/types";
 const RecentTests = ({ attempts }: { attempts: ExamAttempt[] }) => {
   const getScoreBadgeStyle = (score: number) => {
     if (score >= 90) {
-      return "bg-gradient-to-r from-emerald-500 to-cyan-600 text-white shadow-sm";
+      return "bg-emerald-600  text-white shadow-sm";
     } else if (score >= 75) {
       return "bg-cyan-50 text-cyan-700 border border-cyan-200";
     } else {

@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { useForm, SubmitHandler } from "react-hook-form";
-// import { createAccount, googleLogin } from "@/hooks/useAuth";
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { supabase } from "@/supabase";
 
 interface FormDetailsProps {
@@ -34,13 +34,14 @@ const CreateAccount = () => {
 
     if (error) {
       setServerError(error.message);
+      setLoading(false);
       return;
     }
 
     const userId = data.user?.id;
-
     if (!userId) {
-      setServerError("User Id not found, please try again.!");
+      setServerError("User ID not found. Please try again.");
+      setLoading(false);
       return;
     }
 
@@ -55,82 +56,92 @@ const CreateAccount = () => {
 
     if (insertError) {
       setServerError(insertError.message);
+      setLoading(false);
       return;
     }
 
     setLoading(false);
     navigate("/");
-    setLoading(false);
   };
 
-  //   const handleGoogleLogin = async () => {
-  //     const user = await googleLogin();
-  //     if (user) {
-  //       navigate("/dashboard");
-  //     } else {
-  //       navigate("/");
-  //     }
-  //   };
-
-  const pageStyle = {
-    backgroundImage: `url('/Computer Center After Dark.jpeg')`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    minHeight: "100vh",
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin },
+    });
+    if (error) setServerError(error.message);
   };
 
   return (
-    <section
-      style={pageStyle}
-      className="relative flex justify-center items-center w-full"
-    >
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/80" />
+    <section className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      {/* Left illustration / info */}
+      <motion.div
+        initial={{ opacity: 0, x: -50 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="hidden lg:flex flex-col justify-center items-center text-center w-1/2 p-10"
+      >
+        <h1 className="text-4xl font-extrabold text-emerald-700 mb-4">
+          Join the NOA Practice Portal
+        </h1>
+        <p className="text-slate-600 text-lg leading-relaxed max-w-md">
+          Track your progress, take timed tests, and master your exam
+          preparation with confidence.
+        </p>
+        <img
+          src="/login.svg"
+          alt="Signup illustration"
+          className="mt-10 w-3/4"
+        />
+      </motion.div>
 
-      {/* Form Card */}
-      <div className="relative z-10 w-full max-w-md bg-gray-800 p-8 rounded-xl shadow-lg">
-        {/* Header */}
+      {/* Signup form */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-slate-200"
+      >
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-semibold text-gray-100">Get Started</h2>
-          <p className="text-gray-400 text-sm">
-            Create an account with Google or your details
+          <h2 className="text-2xl font-semibold text-slate-800">
+            Create Your Account
+          </h2>
+          <p className="text-slate-500 text-sm mt-1">
+            Sign up with Google or your email address
           </p>
         </div>
 
-        {/* Google Button */}
         <Button
-          type="button"
-          //   onClick={handleGoogleLogin}
+          onClick={handleGoogleLogin}
           variant="outline"
-          className="w-full mb-6 flex items-center justify-center gap-2 bg-gray-700 text-gray-100 border-gray-600 hover:bg-gray-600 hover:text-gray-50 transition-all duration-300"
+          className="w-full flex items-center justify-center gap-2 border-slate-300 bg-slate-50 hover:bg-slate-100 transition-all"
         >
           <FcGoogle className="text-xl" />
-          Create Account with Google
+          Continue with Google
         </Button>
 
         {/* Divider */}
         <div className="relative my-6 text-center text-sm">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-600" />
+            <div className="w-full border-t border-slate-200" />
           </div>
-          <span className="relative z-10 bg-gray-800 px-2 text-gray-400">
-            Or continue with
+          <span className="relative z-10 bg-white px-2 text-slate-500">
+            or create with email
           </span>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {serverError && (
-            <p className="text-sm text-red-400 bg-red-500/10 p-2 rounded-md">
+            <p className="text-sm text-red-500 bg-red-100/60 p-2 rounded-md border border-red-200">
               {serverError}
             </p>
           )}
+
           <div>
             <label
               htmlFor="name"
-              className="block text-sm font-medium mb-1 text-gray-200"
+              className="block text-sm font-medium mb-1 text-slate-700"
             >
-              Name
+              Full Name
             </label>
             <input
               type="text"
@@ -138,33 +149,33 @@ const CreateAccount = () => {
               {...register("name", {
                 required: "Name is required",
                 maxLength: {
-                  value: 20,
-                  message: "Name cannot exceed 20 characters",
+                  value: 50,
+                  message: "Name cannot exceed 50 characters",
                 },
                 minLength: {
                   value: 3,
                   message: "Name must be at least 3 characters",
                 },
               })}
-              required
-              className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+              className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
             />
             {errors.name?.message && (
-              <p className="text-sm text-red-400 mt-1">
+              <p className="text-sm text-red-500 mt-1">
                 {errors.name.message as string}
               </p>
             )}
           </div>
+
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium mb-1 text-gray-200"
+              className="block text-sm font-medium mb-1 text-slate-700"
             >
               Email
             </label>
             <input
               type="email"
-              placeholder="johndoe@yourmail.com"
+              placeholder="you@example.com"
               {...register("email", {
                 required: "Email is required",
                 pattern: {
@@ -172,63 +183,62 @@ const CreateAccount = () => {
                   message: "Enter a valid email address",
                 },
               })}
-              required
-              className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+              className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
             />
             {errors.email?.message && (
-              <p className="text-sm text-red-400 mt-1">
+              <p className="text-sm text-red-500 mt-1">
                 {errors.email.message as string}
               </p>
             )}
           </div>
+
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium mb-1 text-gray-200"
+              className="block text-sm font-medium mb-1 text-slate-700"
             >
               Password
             </label>
             <input
               type="password"
-              placeholder="Create a unique password"
+              placeholder="Create a strong password"
               {...register("password", {
                 required: "Password is required",
                 pattern: {
                   value:
                     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
                   message:
-                    "Password must be 6+ chars, with uppercase, lowercase, number, and symbol",
+                    "At least 6 chars with uppercase, lowercase, number & symbol",
                 },
               })}
-              required
-              className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+              className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
             />
             {errors.password?.message && (
-              <p className="text-sm text-red-400 mt-1">
+              <p className="text-sm text-red-500 mt-1">
                 {errors.password.message as string}
               </p>
             )}
           </div>
+
           <Button
             type="submit"
-            disabled={isSubmitting || !isDirty || !isValid || loading}
-            className="w-full px-6 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-500 shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isSubmitting || !isValid || !isDirty || loading}
+            className="w-full px-6 py-3 rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Signing up..." : "Create Account"}
+            {loading ? "Creating account..." : "Create Account"}
           </Button>
         </form>
 
-        {/* Login Link */}
-        <p className="text-sm text-center mt-4 text-gray-400">
+        <p className="text-sm text-center mt-6 text-slate-500">
           Already have an account?{" "}
           <span
-            onClick={() => navigate("/")}
-            className="text-blue-400 cursor-pointer hover:text-blue-300 transition-colors duration-200"
+            onClick={() => navigate("/login")}
+            className="text-emerald-600 font-medium cursor-pointer hover:text-emerald-700"
           >
             Login
           </span>
         </p>
-      </div>
+      </motion.div>
     </section>
   );
 };
