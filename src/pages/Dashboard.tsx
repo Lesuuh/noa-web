@@ -16,20 +16,20 @@ import RecentTests from "@/components/dashboard/RecentTests";
 import StartModal from "@/components/dashboard/StartModal";
 import ResumeModal from "@/components/dashboard/ResumeModal";
 import Header_CTA_buttons from "@/components/dashboard/Header_CTA_buttons";
+import SEO from "@/components/SeoMeta";
 
 export default function Dashboard() {
   const { user, loading } = useUser();
   const [attempts, setAttempts] = useState<ExamAttempt[]>([]);
-  const [testLoading, setTestLoading] = useState(false);
+  const [testLoading, setTestLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [openStart, setOpenStart] = useState(false);
   const [openResume, setOpenResume] = useState(false);
-  const [hoveredCard, setHoveredCard] = useState<null | string>(null);
+
   // Load user exam attempts
   useEffect(() => {
     if (!user) return;
-    setTestLoading(true);
     const load = async () => {
       const mounted = true;
       const data = await fetchUserExamAttempts(user.id);
@@ -157,6 +157,11 @@ export default function Dashboard() {
 
   return (
     <div className="flex min-h-screen bg-slate-50 text-slate-900">
+      <SEO
+        title="NOA Practice Dashboard"
+        description="Track your NOA exam progress, resume tests, and challenge yourself with new CBT practice exams."
+        url="http://localhost:5173"
+      />
       {/* Sidebar */}
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
@@ -173,8 +178,6 @@ export default function Dashboard() {
           stats={stats}
           handleResume={handleResume}
           handleStartNew={handleStartNew}
-          hoveredCard={hoveredCard}
-          setHoveredCard={setHoveredCard}
         />
 
         {/* KPIs Grid */}

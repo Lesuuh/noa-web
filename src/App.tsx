@@ -1,26 +1,30 @@
 import { Routes, Route } from "react-router-dom";
-
-import LoginPage from "./pages/LoginPage";
-import CreateAccount from "./pages/CreateAccount";
-import Dashboard from "./pages/Dashboard";
-import ExamPage from "./pages/ExamPage";
-import NotFound from "./pages/NotFound";
+import { lazy, Suspense } from "react";
+import Loader from "./components/Loader";
 import AuthGuard from "./components/AuthGuard";
-import ExamReview from "./pages/ExamReview";
+
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const CreateAccount = lazy(() => import("./pages/CreateAccount"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const ExamReview = lazy(() => import("./pages/ExamReview"));
+const ExamPage = lazy(() => import("./pages/ExamPage"));
 
 const App = () => {
   return (
-    <div className="min-h-screen ">
-      <Routes>
-        <Route path="/create-account" element={<CreateAccount />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route element={<AuthGuard />}>
-          <Route index path="/" element={<Dashboard />} />
-          <Route path="/review/:id" element={<ExamReview />} />
-          <Route path="/exam" element={<ExamPage />} />
-        </Route>
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+    <div className="min-h-screen">
+      <Suspense fallback={<Loader />}>
+        <Routes>
+          <Route path="/create-account" element={<CreateAccount />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route element={<AuthGuard />}>
+            <Route index path="/" element={<Dashboard />} />
+            <Route path="/review/:id" element={<ExamReview />} />
+            <Route path="/exam" element={<ExamPage />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
     </div>
   );
 };

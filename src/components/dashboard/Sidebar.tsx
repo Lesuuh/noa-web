@@ -1,11 +1,13 @@
 import { HelpCircle, Settings, Star, Target, X } from "lucide-react";
 import { Dispatch, SetStateAction } from "react";
+import { Link } from "react-router-dom";
+
 const navItems = [
-  { label: "Dashboard", icon: Target, href: "dashboard" },
-  // { label: "Take Exam", icon: Zap, href: "exam" },
-  { label: "Settings", icon: Settings, href: "#" },
-  { label: "Support", icon: HelpCircle, href: "#" },
-  { label: "Freemium", icon: Star, href: "upgrade" },
+  { label: "Dashboard", icon: Target, href: "/" },
+  // { label: "Take Exam", icon: Zap, href: "/exam" },
+  { label: "Settings", icon: Settings, href: "/settings" },
+  { label: "Support", icon: HelpCircle, href: "/support" },
+  { label: "Freemium", icon: Star, href: "/upgrade" },
 ];
 
 interface SidebarProps {
@@ -20,7 +22,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
         sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
       }`}
     >
-      {/* Header  */}
+      {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-slate-200">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded flex items-center justify-center text-white font-bold text-sm drop-shadow-md">
@@ -40,22 +42,23 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
           <X className="w-5 h-5 text-slate-700" />
         </button>
       </div>
+
       <div className="flex flex-col justify-between h-[calc(100%-64px)] px-2 py-4">
         <nav className="space-y-1 overflow-y-auto">
           {navItems.map((item) => (
-            <a
+            <Link
               key={item.label}
-              href={item.href}
-              // Subtle hover effect change
+              to={item.href}
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-emerald-50 transition-colors group"
             >
               <item.icon className="w-5 h-5 text-emerald-600 group-hover:text-emerald-700" />
               <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors">
                 {item.label}
               </span>
-            </a>
+            </Link>
           ))}
         </nav>
+
         <div className="pt-4 border-t border-slate-200">
           <button className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-red-50 cursor-pointer transition-colors group">
             <svg
