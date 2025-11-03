@@ -1,21 +1,6 @@
 import { supabase } from "@/supabase";
+import { UserContextProp, UserContextType } from "@/types";
 import { createContext, useContext, useEffect, useState } from "react";
-
-interface User {
-  id: string;
-  email: string;
-  full_name: string;
-  role: string;
-  created_at: string;
-  updated_at: string;
-}
-
-type UserContextType = Omit<User, "created_at" | "updated_at"> | null;
-
-type UserContextProp = {
-  user: UserContextType;
-  loading: boolean;
-};
 
 const UserContext = createContext<UserContextProp>({
   user: null,

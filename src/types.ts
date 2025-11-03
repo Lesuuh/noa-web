@@ -5,10 +5,21 @@ export interface ExamState {
   isSubmitted: boolean;
 }
 
-export type UserDetails = {
-  name: string;
+
+export interface User {
+  id: string;
   email: string;
-  createdAt: string;
+  full_name: string;
+  role: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type UserContextType = Omit<User, "created_at" | "updated_at"> | null;
+
+export type UserContextProp = {
+  user: UserContextType;
+  loading: boolean;
 };
 
 export interface Question {
