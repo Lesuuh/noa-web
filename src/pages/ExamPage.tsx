@@ -8,9 +8,9 @@ import ExamResult from "./ExamResult";
 import { TimerDisplay } from "@/components/TimerDisplay";
 import { supabase } from "@/supabase";
 import { useUser } from "@/contexts/UserContext";
-import ErrorModal from "@/components/modals/ErrorModal";
 import Loader from "@/components/Loader";
 import { checkAttemptAllowance, fetchTestDuration } from "@/data/fetchUserData";
+import UpgradeModal from "@/components/modals/UpgradeModal";
 
 export default function ExamPage() {
   const { user, loading } = useUser();
@@ -281,8 +281,8 @@ export default function ExamPage() {
   // Show error modal if blocked (before checking allQuestions)
   if (error && allQuestions.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-50 flex items-center justify-center p-4">
-        <ErrorModal
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <UpgradeModal
           message={error}
           onClose={() => (window.location.href = "/")}
         />
@@ -518,7 +518,7 @@ export default function ExamPage() {
         </div>
       </main>
 
-      {error && <ErrorModal message={error} onClose={() => setError("")} />}
+      {/* {error && <ErrorModal message={error} onClose={() => setError("")} />} */}
     </div>
   );
 }

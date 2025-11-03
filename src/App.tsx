@@ -9,6 +9,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const ExamReview = lazy(() => import("./pages/ExamReview"));
 const ExamPage = lazy(() => import("./pages/ExamPage"));
+const Freemium = lazy(() => import("./pages/Freemuim"));
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
             <Route index path="/" element={<Dashboard />} />
             <Route path="/review/:id" element={<ExamReview />} />
             <Route path="/exam" element={<ExamPage />} />
+            <Route path="/freemium" element={<Freemium />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

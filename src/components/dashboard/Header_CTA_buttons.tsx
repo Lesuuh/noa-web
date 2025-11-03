@@ -40,7 +40,7 @@ const Header_CTA_buttons = ({
           {stats.inProgress && (
             <button
               onClick={handleResume}
-              className="flex items-center justify-center gap-2 py-2.5 px-4 sm:px-5 bg-cyan-600 text-white text-sm sm:text-base font-semibold rounded-lg shadow-md hover:shadow-lg hover:bg-amber-600 transition-all duration-200 animate-pulse hover:animate-none w-full sm:w-auto"
+              className="flex items-center justify-center gap-2 py-2.5 px-4 sm:px-5 bg-cyan-600 text-white text-sm sm:text-base font-semibold rounded-lg shadow-md hover:shadow-lg hover:bg-cyan-700 transition-all duration-200 animate-pulse hover:animate-none w-full sm:w-auto"
             >
               <Clock className="w-4 h-4" />
               Resume Test
