@@ -2,14 +2,19 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight, Clock, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { fetchQuestions } from "@/data/fetchQuestions";
+
 import { ExamAttempt, Question } from "@/types";
 import ExamResult from "./ExamResult";
 import { TimerDisplay } from "@/components/TimerDisplay";
 import { supabase } from "@/supabase";
 import { useUser } from "@/contexts/UserContext";
 import Loader from "@/components/Loader";
-import { checkAttemptAllowance, fetchTestDuration } from "@/data/fetchUserData";
+import {
+  checkAttemptAllowance,
+  fetchQuestions,
+  fetchTestDuration,
+  syncExam,
+} from "@/api/api";
 import UpgradeModal from "@/components/modals/UpgradeModal";
 
 export default function ExamPage() {
@@ -67,15 +72,8 @@ export default function ExamPage() {
   useEffect(() => {
     if (!examAttempt?.id) return;
 
-    const syncInterval = setInterval(async () => {
-      try {
-        await supabase.from("exam_attempts").update({
-          answers,
-          duration_seconds: 10800 - timeRemaining,
-        });
-      } catch (err) {
-        console.error("Failed to sync", err);
-      }
+    const syncInterval = setInterval(() => {
+      syncExam(examAttempt.id, answers, timeRemaining);
     }, 60000);
 
     return () => clearInterval(syncInterval);

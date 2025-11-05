@@ -3,7 +3,7 @@ import { ChevronLeft, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { supabase } from "@/supabase";
 import { useUser } from "@/contexts/UserContext";
 import { ExamAttempt, Question } from "@/types";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { formatAttemptTime } from "@/components/formattedDateTime";
 import Loader from "@/components/Loader";
 
@@ -162,15 +162,15 @@ export default function ExamReview() {
   if (!attempts || !allQuestions.length) return <Loader />;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 p-4 md:p-8">
+    <div className="min-h-screen bg-slate-50 text-slate-900  md:p-8">
       {/* Header */}
       <div className="flex items-center gap-3 mb-8">
-        <a
-          href="/"
+        <Link
+          to="/"
           className="p-2 rounded-md hover:bg-slate-200 transition-colors"
         >
           <ChevronLeft className="w-5 h-5 text-slate-700" />
-        </a>
+        </Link>
         <div>
           <h1 className="text-2xl font-bold">Exam Review</h1>
           <p className="text-sm text-slate-500">
@@ -286,9 +286,7 @@ export default function ExamReview() {
               key={q.id}
               className={`bg-slate-200/70 backdrop-blur-sm border border-slate-200 rounded-lg overflow-hidden hover:border-slate-300 transition-colors
     ${
-      anyExpanded && selectedQuestion !== q.id
-        ? "blur-[1px] opacity-50 "
-        : ""
+      anyExpanded && selectedQuestion !== q.id ? "blur-[1px] opacity-50 " : ""
     }`}
             >
               <div

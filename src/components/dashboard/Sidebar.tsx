@@ -33,11 +33,13 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
   return (
     <>
       <aside
-        className={`fixed z-50 top-0 left-0 h-full w-64 bg-white border-r border-slate-200 transition-transform duration-300 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-        }`}
+        className={`h-full w-64 bg-white border-r border-slate-200 transition-transform duration-300 
+          fixed md:static inset-y-0 left-0 z-40
+          ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          }`}
       >
-        {/* Header */}
+        {/* Rest of your sidebar code stays the same */}
         <div className="flex items-center justify-between p-4 border-b border-slate-200">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded flex items-center justify-center text-white font-bold text-sm drop-shadow-md">

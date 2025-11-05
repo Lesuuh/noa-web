@@ -1,18 +1,18 @@
-import { useState, useEffect } from "react";
-import { Trophy, Target, TrendingUp, TimerIcon, Menu } from "lucide-react";
+import { useState, useEffect, useMemo, lazy, Suspense } from "react";
+import { Trophy, Target, TrendingUp, TimerIcon } from "lucide-react";
 
 import { useUser } from "@/contexts/UserContext";
 import Loader from "@/components/Loader";
 import { ExamAttempt } from "@/types";
-import { fetchUserExamAttempts } from "@/data/fetchUserData";
+import { fetchUserExamAttempts } from "@/api/api";
 import { supabase } from "@/supabase";
 import { formatAttemptTime } from "@/components/formattedDateTime";
 import { useExamStats } from "@/hooks/useExamStats";
-
-import Sidebar from "@/components/dashboard/Sidebar";
+const Achievement_Chart = lazy(
+  () => import("@/components/dashboard/Achievement_Chart")
+);
+const RecentTests = lazy(() => import("@/components/dashboard/RecentTests"));
 import KpiCard from "@/components/dashboard/KpiCard";
-import Achievement_Chart from "@/components/dashboard/Achievement_Chart";
-import RecentTests from "@/components/dashboard/RecentTests";
 import StartModal from "@/components/dashboard/StartModal";
 import ResumeModal from "@/components/dashboard/ResumeModal";
 import Header_CTA_buttons from "@/components/dashboard/Header_CTA_buttons";
@@ -22,7 +22,6 @@ export default function Dashboard() {
   const { user, loading } = useUser();
   const [attempts, setAttempts] = useState<ExamAttempt[]>([]);
   const [testLoading, setTestLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [openStart, setOpenStart] = useState(false);
   const [openResume, setOpenResume] = useState(false);
@@ -30,13 +29,18 @@ export default function Dashboard() {
   // Load user exam attempts
   useEffect(() => {
     if (!user) return;
+    let isMounted = true;
     const load = async () => {
-      const mounted = true;
       const data = await fetchUserExamAttempts(user.id);
-      if (mounted) setAttempts(data);
-      setTestLoading(false);
+      if (isMounted) {
+        setAttempts(data);
+        setTestLoading(false);
+      }
     };
     load();
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
   const {
@@ -83,69 +87,80 @@ export default function Dashboard() {
     };
   }, [user?.id]);
 
-  const scoreTrendData = attempts
-    .slice(0, 5)
-    .reverse()
-    .map(({ started_at, score }) => {
-      const { dateLabel } = formatAttemptTime(started_at);
-      return { date: dateLabel, score };
-    });
+  const scoreTrendData = useMemo(() => {
+    return attempts
+      .slice(0, 5)
+      .reverse()
+      .map(({ started_at, score }) => {
+        const { dateLabel } = formatAttemptTime(started_at);
+        return { date: dateLabel, score };
+      });
+  }, [attempts]);
 
   const handleStartNew = () => setOpenStart(true);
   const handleResume = () => setOpenResume(true);
 
-  const kpiData = [
-    {
-      label: "Tests Completed",
-      value: totalTestTaken,
-      icon: Target,
-      bgColor: "bg-emerald-50",
-      textColor: "text-emerald-700",
-      borderColor: "border-emerald-300",
-    },
-    {
-      label: "Average Score",
-      value: `${averageScore.toFixed(1)}%`,
-      icon: TrendingUp,
-      bgColor: "bg-amber-50",
-      textColor: "text-amber-700",
-      borderColor: "border-amber-300",
-    },
-    {
-      label: "Highest Score",
-      value: `${highestScore}%`,
-      icon: Trophy,
-      // Refined Gold for premium look
-      bgColor: "bg-yellow-100",
-      textColor: "text-yellow-800",
-      borderColor: "border-yellow-400",
-    },
-    {
-      label: "Avg. Completion Time",
-      value: `${averageTime} min`,
-      icon: TimerIcon,
-      bgColor: "bg-cyan-50", // Changed from blue-50
-      textColor: "text-cyan-700", // Changed from blue-700
-      borderColor: "border-cyan-300", // Changed from blue-300
-    },
-  ];
+  const kpiData = useMemo(
+    () => [
+      {
+        label: "Tests Completed",
+        value: totalTestTaken,
+        icon: Target,
+        bgColor: "bg-emerald-50",
+        textColor: "text-emerald-700",
+        borderColor: "border-emerald-300",
+      },
+      {
+        label: "Average Score",
+        value: `${averageScore.toFixed(1)}%`,
+        icon: TrendingUp,
+        bgColor: "bg-amber-50",
+        textColor: "text-amber-700",
+        borderColor: "border-amber-300",
+      },
+      {
+        label: "Highest Score",
+        value: `${highestScore}%`,
+        icon: Trophy,
+        // Refined Gold for premium look
+        bgColor: "bg-yellow-100",
+        textColor: "text-yellow-800",
+        borderColor: "border-yellow-400",
+      },
+      {
+        label: "Avg. Completion Time",
+        value: `${averageTime} min`,
+        icon: TimerIcon,
+        bgColor: "bg-cyan-50", // Changed from blue-50
+        textColor: "text-cyan-700", // Changed from blue-700
+        borderColor: "border-cyan-300", // Changed from blue-300
+      },
+    ],
+    [averageScore, averageTime, highestScore, totalTestTaken]
+  );
 
-  const achievements = [
-    {
-      label: "Consistency Champion - Completed 5 Tests",
-      value:
-        typeof toComplete5Challenges === "function"
-          ? toComplete5Challenges()
-          : toComplete5Challenges ?? 0,
-      color: "bg-emerald-600",
-    },
-    {
-      label: "Higher Achiever - Scored 90+% in recent tests",
-      value:
-        typeof scoreAbove90 === "function" ? scoreAbove90() : scoreAbove90 ?? 0,
-      color: "bg-cyan-700",
-    },
-  ];
+  const achievements = useMemo(
+    () => [
+      {
+        label: "Consistency Champion - Completed 5 Tests",
+        value:
+          typeof toComplete5Challenges === "function"
+            ? toComplete5Challenges()
+            : toComplete5Challenges ?? 0,
+        color: "bg-emerald-600",
+      },
+      {
+        label: "Higher Achiever - Scored 90+% in recent tests",
+        value:
+          typeof scoreAbove90 === "function"
+            ? scoreAbove90()
+            : scoreAbove90 ?? 0,
+        color: "bg-cyan-700",
+      },
+    ],
+    [scoreAbove90, toComplete5Challenges]
+  );
+
   // Mock data
   const stats = {
     lastScore: 85,
@@ -162,35 +177,34 @@ export default function Dashboard() {
         description="Track your NOA exam progress, resume tests, and challenge yourself with new CBT practice exams."
         url="http://localhost:5173"
       />
-      {/* Sidebar */}
-      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-      <button
-        onClick={() => setSidebarOpen(true)}
-        className="fixed top-4 right-4 md:hidden z-50 p-2 rounded-lg bg-slate-800/80 backdrop-blur-sm border border-emerald-900/30 hover:bg-slate-700 transition-colors"
-      >
-        <Menu className="w-5 h-5 text-emerald-400" />
-      </button>
-
-      <main className="flex-1 p-4 md:p-8 space-y-8 overflow-auto ml-0 md:ml-64">
-        <Header_CTA_buttons
-          user={user}
-          stats={stats}
-          handleResume={handleResume}
-          handleStartNew={handleStartNew}
-        />
+      <main className="flex-1  md:p-8 space-y-8 overflow-auto ml-0">
+        <Suspense fallback={<Loader />}>
+          <Header_CTA_buttons
+            user={user}
+            stats={stats}
+            handleResume={handleResume}
+            handleStartNew={handleStartNew}
+          />
+        </Suspense>
 
         {/* KPIs Grid */}
-        <KpiCard kpiData={kpiData} />
+        <Suspense fallback={<Loader />}>
+          <KpiCard kpiData={kpiData} />
+        </Suspense>
 
         {/* Achievements & Chart */}
-        <Achievement_Chart
-          achievements={achievements}
-          scoreTrendData={scoreTrendData}
-        />
+        <Suspense fallback={<Loader />}>
+          <Achievement_Chart
+            achievements={achievements}
+            scoreTrendData={scoreTrendData}
+          />
+        </Suspense>
 
         {/* Recent Tests */}
-        <RecentTests attempts={attempts} />
+        <Suspense fallback={<Loader />}>
+          <RecentTests attempts={attempts} />
+        </Suspense>
       </main>
 
       {/* modals */}

@@ -1,19 +1,5 @@
 import { supabase } from "@/supabase";
 
-export const fetchTestHistory = async (user_id: string) => {
-  const { data, error } = await supabase
-    .from("exam_attempts")
-    .select("*")
-    .eq("user_id", user_id);
-
-  if (error) {
-    console.error(error.message);
-    return [];
-  }
-
-  return data || [];
-};
-
 export const fetchUserExamAttempts = async (user_id: string) => {
   const { data, error } = await supabase
     .from("exam_attempts")
@@ -30,30 +16,20 @@ export const fetchUserExamAttempts = async (user_id: string) => {
   return data || [];
 };
 
-// export const checkAttemptAllowance = async (userId: string) => {
-//   try {
-//     const { count, error } = await supabase
-//       .from("exam_attempts")
-//       .select("id", { count: "exact" })
-//       .eq("user_id", userId)
-//       .eq("status", "completed");
+export const fetchQuestions = async () => {
+  const { data, error } = await supabase.from("questions").select("*");
 
-//     if (error) throw error;
+  if (error) {
+    console.error("Error occurred while fetching questions:", error.message);
+    throw error;
+  }
 
-//     if ((count ?? 0) >= 10) {
-//       return { allowed: false, message: "Free limit reached. Please upgrade." };
-//     }
+  const shuffledQuestions = data.sort(() => Math.random() - 0.5);
 
-//     return { allowed: true, attempts: count };
-//   } catch (err: unknown) {
-//     const message = err instanceof Error ? err.message : "Unknown error";
-//     console.error("Attempt check failed:", message);
-//     return {
-//       allowed: false,
-//       message: "Could not verify attempts. Try again later.",
-//     };
-//   }
-// };
+  console.log(shuffledQuestions);
+
+  return shuffledQuestions || [];
+};
 
 export const checkAttemptAllowance = async (userId: string) => {
   try {
@@ -96,4 +72,30 @@ export const fetchTestDuration = async () => {
   if (error) throw error;
 
   return { testDuration };
+};
+
+// sync exam to supabase
+export const syncExam = async (
+  attemptId: string,
+  answers: Record<string, number>,
+  timeRemaining: number
+) => {
+  try {
+    const durationSeconds = 10800 - timeRemaining;
+
+    const { error } = await supabase
+      .from("exam_attempts")
+      .update({
+        answers,
+        duration_seconds: durationSeconds,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", attemptId);
+
+    if (error) throw error;
+    return { success: true };
+  } catch (err) {
+    console.error("Failed to sync exam:", err);
+    return { success: false, error: err };
+  }
 };
