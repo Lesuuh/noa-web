@@ -29,6 +29,15 @@ export const loginWithGoogle = async () => {
   return true;
 };
 
+export const logoutUser = async (): Promise<boolean> => {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    console.error("Logout error:", error.message);
+    return false;
+  }
+  return true;
+};
+
 export const fetchUserExamAttempts = async (
   user_id: string
 ): Promise<ExamAttempt[]> => {

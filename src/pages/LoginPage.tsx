@@ -7,6 +7,7 @@ import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { loginWithEmail, loginWithGoogle } from "@/api/api";
+import { useUser } from "@/contexts/UserContext";
 
 interface LoginDetailsProps {
   email: string;
@@ -17,7 +18,9 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState<string>("");
+  const { user } = useUser();
 
+  console.log(user);
   const {
     register,
     handleSubmit,

@@ -1,8 +1,8 @@
-import { logoutUser } from "@/utils/auth";
 import { HelpCircle, Settings, Star, Target, X } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import LogoutModal from "../modals/LogoutModal";
+import { logoutUser } from "@/api/api";
 
 const navItems = [
   { label: "Dashboard", icon: Target, href: "/" },

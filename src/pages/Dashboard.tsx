@@ -76,6 +76,8 @@ export default function Dashboard() {
     };
   }, [queryClient, user?.id]);
 
+  console.log(user);
+
   const scoreTrendData = useMemo(() => {
     return attempts
       ?.slice(0, 5)
