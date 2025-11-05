@@ -1,6 +1,37 @@
 import { supabase } from "@/supabase";
+import { ExamAttempt, Question } from "@/types";
 
-export const fetchUserExamAttempts = async (user_id: string) => {
+// Email + password login
+export const loginWithEmail = async ({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}) => {
+  const { error, data } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) throw new Error(error.message);
+  return data;
+};
+
+// Google OAuth login
+export const loginWithGoogle = async () => {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: window.location.origin },
+  });
+
+  if (error) throw new Error(error.message);
+  return true;
+};
+
+export const fetchUserExamAttempts = async (
+  user_id: string
+): Promise<ExamAttempt[]> => {
   const { data, error } = await supabase
     .from("exam_attempts")
     .select("*")
@@ -16,7 +47,7 @@ export const fetchUserExamAttempts = async (user_id: string) => {
   return data || [];
 };
 
-export const fetchQuestions = async () => {
+export const fetchQuestions = async (): Promise<Question[]> => {
   const { data, error } = await supabase.from("questions").select("*");
 
   if (error) {
@@ -80,22 +111,20 @@ export const syncExam = async (
   answers: Record<string, number>,
   timeRemaining: number
 ) => {
-  try {
-    const durationSeconds = 10800 - timeRemaining;
+  const durationSeconds = 10800 - timeRemaining;
 
-    const { error } = await supabase
-      .from("exam_attempts")
-      .update({
-        answers,
-        duration_seconds: durationSeconds,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", attemptId);
+  const { error } = await supabase
+    .from("exam_attempts")
+    .update({
+      answers,
+      duration_seconds: durationSeconds,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", attemptId);
 
-    if (error) throw error;
-    return { success: true };
-  } catch (err) {
-    console.error("Failed to sync exam:", err);
-    return { success: false, error: err };
+  if (error) {
+    throw new Error(error.message);
   }
+
+  return { success: true };
 };

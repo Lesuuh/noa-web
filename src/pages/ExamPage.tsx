@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, Clock, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-import { ExamAttempt, Question } from "@/types";
+import { ExamAttempt } from "@/types";
 import ExamResult from "./ExamResult";
 import { TimerDisplay } from "@/components/TimerDisplay";
 import { supabase } from "@/supabase";
@@ -16,37 +16,75 @@ import {
   syncExam,
 } from "@/api/api";
 import UpgradeModal from "@/components/modals/UpgradeModal";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function ExamPage() {
   const { user, loading } = useUser();
+  const queryClient = useQueryClient();
 
-  // -----------------------------
   // State
-  // -----------------------------
-  const [allQuestions, setAllQuestions] = useState<Question[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [timeRemaining, setTimeRemaining] = useState<number>(10800);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
-  // const [jumpInput, setJumpInput] = useState("");
   const [showNavigator, setShowNavigator] = useState(false);
   const [error, setError] = useState<string>("");
   const [examAttempt, setExamAttempt] = useState<ExamAttempt | undefined>();
-  const [submitting, setSubmitting] = useState(false);
-  const [attemptCount, setAttemptCount] = useState<number>(0);
-  const [loadingExam, setLoadingExam] = useState(true); // Add this
 
   const startedAt = useRef(new Date());
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // ✅ Use refs for latest values in timer
+  const latestAnswers = useRef(answers);
+  const latestQuestions = useRef<typeof allQuestions>([]);
+  const latestExamAttempt = useRef(examAttempt);
+
+  // Queries
+  const { data: attemptCount, isLoading: loadingAttemptCount } = useQuery({
+    queryKey: ["attemptCount", user?.id],
+    queryFn: () => checkAttemptAllowance(user?.id as string),
+    enabled: !!user?.id,
+  });
+
+  const { data: duration, isLoading: loadingDuration } = useQuery({
+    queryKey: ["duration"],
+    queryFn: fetchTestDuration,
+    enabled: !!attemptCount?.allowed,
+  });
+
+  const { data: allQuestions = [], isLoading: loadingQuestions } = useQuery({
+    queryKey: ["questions"],
+    queryFn: fetchQuestions,
+    enabled: !!attemptCount?.allowed,
+  });
+
+  // ✅ Update duration when fetched
+  useEffect(() => {
+    if (duration?.testDuration?.[0]?.duration_seconds) {
+      const durationSeconds = duration.testDuration[0].duration_seconds;
+      setTimeRemaining(durationSeconds);
+    }
+  }, [duration]);
+
+  // ✅ Keep refs updated
+  useEffect(() => {
+    latestAnswers.current = answers;
+  }, [answers]);
+
+  useEffect(() => {
+    latestQuestions.current = allQuestions;
+  }, [allQuestions]);
+
+  useEffect(() => {
+    latestExamAttempt.current = examAttempt;
+  }, [examAttempt]);
 
   const answeredCount = Object.keys(answers).length;
   const question = allQuestions[currentQuestion];
   const isTimeWarning = timeRemaining < 60;
 
-  // -----------------------------
-  // Restore saved progress from localStorage
-  // -----------------------------
+  // Restore saved progress
   useEffect(() => {
     const savedAnswers = localStorage.getItem("exam_answers");
     const savedTimeRemaining = localStorage.getItem("time_remaining");
@@ -54,34 +92,52 @@ export default function ExamPage() {
     if (savedTimeRemaining) setTimeRemaining(Number(savedTimeRemaining));
   }, []);
 
-  // -----------------------------
-  // Autosave progress to localStorage every 30s
-  // -----------------------------
+  // Autosave to localStorage
   useEffect(() => {
     const autosave = setInterval(() => {
       localStorage.setItem("exam_answers", JSON.stringify(answers));
       localStorage.setItem("time_remaining", String(timeRemaining));
     }, 30000);
-
     return () => clearInterval(autosave);
   }, [answers, timeRemaining]);
 
-  // -----------------------------
-  // Sync answers to Supabase every 60s
-  // -----------------------------
+  // Sync mutation
+  const mutation = useMutation({
+    mutationFn: ({
+      attemptId,
+      answers,
+      timeRemaining,
+    }: {
+      attemptId: string;
+      answers: Record<string, number>;
+      timeRemaining: number;
+    }) => syncExam(attemptId, answers, timeRemaining),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["examAttempts", user?.id] });
+    },
+    onError: (error) => {
+      console.error("Sync failed:", error.message);
+    },
+  });
+
+  // ✅ Sync to Supabase (Fixed - removed mutation from deps)
   useEffect(() => {
     if (!examAttempt?.id) return;
 
-    const syncInterval = setInterval(() => {
-      syncExam(examAttempt.id, answers, timeRemaining);
-    }, 60000);
+    const sync = () => {
+      mutation.mutate({
+        attemptId: examAttempt.id,
+        answers: latestAnswers.current,
+        timeRemaining,
+      });
+    };
 
-    return () => clearInterval(syncInterval);
-  }, [answers, timeRemaining, examAttempt?.id]);
+    sync(); // Initial sync
+    const interval = setInterval(sync, 60000);
+    return () => clearInterval(interval);
+  }, [examAttempt?.id, timeRemaining]); // ✅ Removed mutation
 
-  // -----------------------------
-  // Warn user before accidental refresh/close
-  // -----------------------------
+  // Warn before unload
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (!isSubmitted) {
@@ -89,12 +145,11 @@ export default function ExamPage() {
         e.returnValue = "";
       }
     };
-
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isSubmitted]);
 
-  // Clear localStorage after successful submission
+  // Clear localStorage after submission
   useEffect(() => {
     if (isSubmitted) {
       localStorage.removeItem("exam_answers");
@@ -102,59 +157,9 @@ export default function ExamPage() {
     }
   }, [isSubmitted]);
 
-  // -----------------------------
-  // Load exam questions and duration
-  // -----------------------------
-
-  // Update the initExam function:
+  // Create exam attempt
   useEffect(() => {
-    if (!user?.id) return;
-
-    const initExam = async () => {
-      setLoadingExam(true); // Start loading
-      try {
-        // Check if user is allowed
-        const { allowed, message, attempts } = await checkAttemptAllowance(
-          user.id
-        );
-
-        if (!allowed) {
-          setError(message || "You've exceeded your free attempts.");
-          setLoadingExam(false); // Stop loading even if blocked
-          return;
-        }
-
-        setAttemptCount(attempts || 0);
-
-        // Fetch test duration
-        const { testDuration } = await fetchTestDuration();
-        const durationSeconds = testDuration[0]?.duration_seconds ?? 10800;
-        setTimeRemaining(durationSeconds);
-
-        // Fetch questions
-        const questions = await fetchQuestions();
-        if (!questions.length) {
-          setError("No questions available for this exam.");
-          setLoadingExam(false);
-          return;
-        }
-        setAllQuestions(questions);
-        setLoadingExam(false); // Stop loading after success
-      } catch (err) {
-        console.error("Exam init failed", err);
-        setError("Could not start exam. Please retry.");
-        setLoadingExam(false); // Stop loading on error
-      }
-    };
-
-    initExam();
-  }, [user?.id]);
-
-  // -----------------------------
-  // Create exam attempt in Supabase
-  // -----------------------------
-  useEffect(() => {
-    if (!user?.id || allQuestions.length === 0) return;
+    if (!user?.id || allQuestions.length === 0 || examAttempt) return;
 
     const createAttempt = async () => {
       try {
@@ -178,11 +183,9 @@ export default function ExamPage() {
     };
 
     createAttempt();
-  }, [user?.id, allQuestions]);
+  }, [user?.id, allQuestions, examAttempt]);
 
-  // -----------------------------
   // Handlers
-  // -----------------------------
   const handleOptionChange = (optionIndex: number) => {
     const currentQuestionId = allQuestions[currentQuestion].id;
     setAnswers((prev) => ({ ...prev, [currentQuestionId]: optionIndex }));
@@ -197,47 +200,44 @@ export default function ExamPage() {
     if (currentQuestion > 0) setCurrentQuestion(currentQuestion - 1);
   };
 
-  // const handleJumpToQuestion = () => {
-  //   const questionNum = Number.parseInt(jumpInput);
-  //   if (questionNum > 0 && questionNum <= allQuestions.length) {
-  //     setCurrentQuestion(questionNum - 1);
-  //     setJumpInput("");
-  //     setShowNavigator(false);
-  //   }
-  // };
-
-  const handleSubmit = useCallback(async () => {
-    if (submitting) return;
-    if (!user?.id) {
+  // ✅ Submit function using refs (doesn't need to be in deps)
+  const submitExam = useCallback(async () => {
+    if (!user?.id || !latestExamAttempt.current?.id) {
       setError("You must be logged in to submit this exam.");
       return;
     }
 
     let totalScore = 0;
-    allQuestions.forEach((q) => {
-      if (answers[q.id] === q.correct_answer) totalScore++;
+    const questionsToCheck = latestQuestions.current;
+    const answersToCheck = latestAnswers.current;
+
+    questionsToCheck.forEach((q) => {
+      if (answersToCheck[q.id] === q.correct_answer) totalScore++;
     });
+
     setScore(totalScore);
 
     const submitted_at = new Date();
     try {
-      setSubmitting(true);
       const { data, error } = await supabase
         .from("exam_attempts")
         .update({
           score: totalScore,
-          answers,
+          answers: answersToCheck,
           submitted_at,
           duration_seconds: Math.floor(
             (submitted_at.getTime() - startedAt.current.getTime()) / 1000
           ),
           status: "completed",
         })
-        .eq("id", examAttempt?.id)
+        .eq("id", latestExamAttempt.current.id)
         .select()
         .single();
 
-      if (error) setError(error.message);
+      if (error) {
+        setError(error.message);
+        return;
+      }
 
       setExamAttempt(data ?? undefined);
       setIsSubmitted(true);
@@ -245,15 +245,10 @@ export default function ExamPage() {
       const message =
         err instanceof Error ? err.message : "Unexpected error occurred";
       setError(message);
-    } finally {
-      setSubmitting(false);
     }
-  }, [submitting, user?.id, allQuestions, answers, examAttempt?.id]);
+  }, [user?.id]); // ✅ Minimal dependencies
 
-  // -----------------------------
-  // Timer countdown
-  // -----------------------------
-
+  // ✅ Timer countdown (Fixed - stable submitExam)
   useEffect(() => {
     if (isSubmitted || !examAttempt) return;
 
@@ -261,39 +256,53 @@ export default function ExamPage() {
       setTimeRemaining((prev) => {
         if (prev <= 1) {
           clearInterval(intervalRef.current!);
-          handleSubmit();
+          submitExam(); // ✅ Now stable, won't be stale
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
 
-    return () => clearInterval(intervalRef.current!);
-  }, [handleSubmit, isSubmitted, examAttempt]);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [isSubmitted, examAttempt, submitExam]); // ✅ submitExam is now stable
 
-  // -----------------------------
-  // Render loading / submitted / main UI
+  // Render
+  const isLoadingExam =
+    loading || loadingAttemptCount || loadingDuration || loadingQuestions;
 
-  if (loading || loadingExam) return <Loader />;
+  if (isLoadingExam) return <Loader />;
 
-  // Show error modal if blocked (before checking allQuestions)
-  if (error && allQuestions.length === 0) {
+  // ✅ THEN check if not allowed (after loading is done)
+  if (attemptCount?.allowed === false) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <UpgradeModal
-          message={error}
+          message={attemptCount.message || "You've reached your exam limit"}
+          // ✅ Use message from attemptCount, not error state
           onClose={() => (window.location.href = "/")}
         />
       </div>
     );
   }
-  // -----------------------------
-  if (allQuestions.length === 0)
+
+  // ✅ Check if questions are available
+  if (!allQuestions?.length) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-slate-900">
-        <div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <p className="text-gray-600">No questions available.</p>
       </div>
     );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <p className="text-gray-600">{error}</p>
+      </div>
+    );
+  }
 
   if (isSubmitted)
     return (
@@ -318,7 +327,7 @@ export default function ExamPage() {
               Question {currentQuestion + 1} of {allQuestions.length}
             </p>
             <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-              Attempt {attemptCount} of 10
+              Attempt {attemptCount?.attempts} of 10
             </p>
           </div>
 
@@ -354,7 +363,7 @@ export default function ExamPage() {
 
             <Button
               className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm sm:text-base font-semibold rounded-lg transition-all duration-200"
-              onClick={handleSubmit}
+              onClick={submitExam}
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Submit</span>
@@ -433,7 +442,7 @@ export default function ExamPage() {
 
           {currentQuestion === allQuestions.length - 1 ? (
             <Button
-              onClick={handleSubmit}
+              onClick={submitExam}
               className="w-full sm:w-auto px-8 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
             >
               <CheckCircle2 className="w-4 h-4" /> Submit Exam
@@ -515,8 +524,6 @@ export default function ExamPage() {
           </div>
         </div>
       </main>
-
-      {/* {error && <ErrorModal message={error} onClose={() => setError("")} />} */}
     </div>
   );
 }

@@ -1,12 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/supabase";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { loginWithEmail, loginWithGoogle } from "@/api/api";
 
 interface LoginDetailsProps {
   email: string;
@@ -28,25 +28,23 @@ const LoginPage = () => {
 
   const onSubmit: SubmitHandler<LoginDetailsProps> = async (data) => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: data.email,
-      password: data.password,
-    });
-    if (error) {
-      setServerError(error.message);
+    try {
+      await loginWithEmail(data);
+      navigate("/");
+    } catch (error) {
+      if (error instanceof Error) setServerError(error.message);
+    } finally {
       setLoading(false);
-      return;
     }
-    setLoading(false);
-    navigate("/");
   };
 
   const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin },
-    });
-    if (error) setServerError(error.message);
+    try {
+      await loginWithGoogle();
+      // navigate("/");
+    } catch (error) {
+      if (error instanceof Error) setServerError(error.message);
+    }
   };
 
   return (

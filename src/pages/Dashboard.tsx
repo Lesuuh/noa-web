@@ -3,7 +3,6 @@ import { Trophy, Target, TrendingUp, TimerIcon } from "lucide-react";
 
 import { useUser } from "@/contexts/UserContext";
 import Loader from "@/components/Loader";
-import { ExamAttempt } from "@/types";
 import { fetchUserExamAttempts } from "@/api/api";
 import { supabase } from "@/supabase";
 import { formatAttemptTime } from "@/components/formattedDateTime";
@@ -17,31 +16,20 @@ import StartModal from "@/components/dashboard/StartModal";
 import ResumeModal from "@/components/dashboard/ResumeModal";
 import Header_CTA_buttons from "@/components/dashboard/Header_CTA_buttons";
 import SEO from "@/components/SeoMeta";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function Dashboard() {
   const { user, loading } = useUser();
-  const [attempts, setAttempts] = useState<ExamAttempt[]>([]);
-  const [testLoading, setTestLoading] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
   const [openStart, setOpenStart] = useState(false);
   const [openResume, setOpenResume] = useState(false);
+  const queryClient = useQueryClient();
 
-  // Load user exam attempts
-  useEffect(() => {
-    if (!user) return;
-    let isMounted = true;
-    const load = async () => {
-      const data = await fetchUserExamAttempts(user.id);
-      if (isMounted) {
-        setAttempts(data);
-        setTestLoading(false);
-      }
-    };
-    load();
-    return () => {
-      isMounted = false;
-    };
-  }, [user]);
+  const { data: attempts, isLoading: testLoading } = useQuery({
+    queryKey: ["attempts", user?.id],
+    queryFn: () => fetchUserExamAttempts(user!.id),
+    enabled: !!user?.id,
+  });
 
   const {
     totalTestTaken,
@@ -50,7 +38,7 @@ export default function Dashboard() {
     averageTime,
     scoreAbove90,
     toComplete5Challenges,
-  } = useExamStats(attempts);
+  } = useExamStats(attempts ?? []);
 
   useEffect(() => {
     if (totalTestTaken >= 5 && !showConfetti) setShowConfetti(true);
@@ -78,18 +66,19 @@ export default function Dashboard() {
         },
         async () => {
           const data = await fetchUserExamAttempts(user.id);
-          setAttempts(data);
+
+          queryClient.setQueryData(["attempts"], data);
         }
       )
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id]);
+  }, [queryClient, user?.id]);
 
   const scoreTrendData = useMemo(() => {
     return attempts
-      .slice(0, 5)
+      ?.slice(0, 5)
       .reverse()
       .map(({ started_at, score }) => {
         const { dateLabel } = formatAttemptTime(started_at);
@@ -197,13 +186,13 @@ export default function Dashboard() {
         <Suspense fallback={<Loader />}>
           <Achievement_Chart
             achievements={achievements}
-            scoreTrendData={scoreTrendData}
+            scoreTrendData={scoreTrendData ?? []}
           />
         </Suspense>
 
         {/* Recent Tests */}
         <Suspense fallback={<Loader />}>
-          <RecentTests attempts={attempts} />
+          <RecentTests attempts={attempts ?? []} />
         </Suspense>
       </main>
 
