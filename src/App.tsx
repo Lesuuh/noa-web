@@ -13,8 +13,8 @@ const ExamReview = lazy(() => import("./pages/ExamReview"));
 const ExamPage = lazy(() => import("./pages/ExamPage"));
 const Freemium = lazy(() => import("./pages/Freemuim"));
 
+const queryClient = new QueryClient();
 const App = () => {
-  const queryClient = new QueryClient();
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen">

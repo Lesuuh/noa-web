@@ -5,7 +5,6 @@ export interface ExamState {
   isSubmitted: boolean;
 }
 
-
 export interface User {
   id: string;
   email: string;

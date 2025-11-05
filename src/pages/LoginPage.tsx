@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
@@ -29,11 +29,19 @@ const LoginPage = () => {
     mode: "onChange",
   });
 
+  useEffect(() => {
+    if (!loading && user) {
+      navigate("/", { replace: true });
+    }
+  }, [user, loading, navigate]);
+
   const onSubmit: SubmitHandler<LoginDetailsProps> = async (data) => {
     setLoading(true);
     try {
       await loginWithEmail(data);
-      navigate("/");
+      if (user) {
+        navigate("/");
+      }
     } catch (error) {
       if (error instanceof Error) setServerError(error.message);
     } finally {

@@ -16,6 +16,7 @@ export default function ExamReview() {
   const questionsPerPage = 10;
   const { user } = useUser();
   const { id } = useParams();
+  console.log(user);
 
   const [attempts, setAttempts] = useState<ExamAttempt | null>(null);
   const [allQuestions, setAllQuestions] = useState<Question[]>([]);

@@ -1,5 +1,6 @@
 import { supabase } from "@/supabase";
 import { UserContextProp, UserContextType } from "@/types";
+import { Session } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState } from "react";
 
 const UserContext = createContext<UserContextProp | undefined>(undefined);
@@ -13,7 +14,8 @@ export const UserContextProvider = ({
   const [user, setUser] = useState<UserContextType>(null);
 
   useEffect(() => {
-    // Fetch user profile helper
+    let isMounted = true;
+
     const fetchUserProfile = async (userId: string) => {
       const { data: profile, error } = await supabase
         .from("users")
@@ -22,48 +24,39 @@ export const UserContextProvider = ({
         .single();
 
       if (error) {
-        console.error("Error fetching user profile:", error);
+        console.error(error);
         return null;
       }
       return profile;
     };
 
-    // Initial session check
-    const initializeUser = async () => {
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (session?.user) {
-          const profile = await fetchUserProfile(session.user.id);
-          setUser(profile);
-        } else {
-          setUser(null);
-        }
-      } catch (error) {
-        console.error("Error initializing user:", error);
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initializeUser();
-
-    // Auth state listener
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (!session?.user) {
-        setUser(null);
-      } else {
+    const setUserFromSession = async (session: Session | null) => {
+      if (!isMounted) return;
+      if (session?.user) {
         const profile = await fetchUserProfile(session.user.id);
         setUser(profile);
+      } else {
+        setUser(null);
       }
-    });
+      setLoading(false); // ✅ Make sure loading is false after any update
+    };
 
-    return () => subscription.unsubscribe();
+    // Initial load
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => setUserFromSession(session));
+
+    // Listen to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUserFromSession(session); // ✅ reuses same function
+      }
+    );
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (
