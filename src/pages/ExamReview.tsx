@@ -57,11 +57,6 @@ export default function ExamReview() {
 
   const questions = examReviewQuestions;
 
-  // const unansweredQuestions =
-
-  console.log(questions);
-
-  console.log(attempts);
   useEffect(() => {
     const getAllQuestions = async () => {
       if (user && id) {
@@ -88,8 +83,6 @@ export default function ExamReview() {
 
     getAllQuestions();
   }, [user, id, attempts?.question_order]);
-
-  console.log(allQuestions);
 
   useEffect(() => {
     const getAllAttempts = async () => {
@@ -129,6 +122,8 @@ export default function ExamReview() {
   const totalQuestions = allQuestions;
 
   console.log(unansweredQuestions);
+  console.log(correctQuestions);
+  console.log(incorrectQuestions);
   // --- FILTERING LOGIC ---
   const filteredQuestions = questions.filter((q) => {
     const isCorrect = q.userAnswer === q.correctAnswer;
@@ -168,16 +163,16 @@ export default function ExamReview() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900  md:p-8">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-8">
+      <div className="flex items-center gap-3 mb-5">
         <Link
           to="/"
-          className="p-2 rounded-md hover:bg-slate-200 transition-colors"
+          className=" rounded-md hover:bg-slate-200 transition-colors"
         >
           <ChevronLeft className="w-5 h-5 text-slate-700" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold">Exam Review</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-xl font-bold">Exam Review</h1>
+          <p className="text-xs md:text-sm text-slate-500">
             {formatAttemptTime(attempts?.submitted_at ?? "").dateLabel} ·{" "}
             {attempts && Math.floor(attempts?.duration_seconds / 60)} min total
           </p>
@@ -185,46 +180,55 @@ export default function ExamReview() {
       </div>
 
       {/* Summary - REDESIGNED */}
-      <div className="bg-white border border-slate-200 rounded-lg p-8 mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
-          <div>
-            <p className="text-sm text-slate-500 mb-2">
-              Attempt Performance (
-              <span className="font-semibold text-slate-700">
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          {/* Left: Performance Stats */}
+          <div className="flex-1">
+            <p className="text-xs md:text-sm text-slate-500 mb-1">
+              Attempted{" "}
+              <span className="font-semibold text-slate-800">
                 {answeredQuestions || 0}
-              </span>{" "}
-              out of{" "}
-              <span className="font-semibold text-slate-700">
+              </span>
+              /
+              <span className="font-semibold text-slate-800">
                 {totalQuestions.length}
               </span>{" "}
-              questions attempted )
+              Questions
             </p>
-            <h2 className="text-5xl font-bold text-slate-900">
+
+            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900">
               {displayedScore}%
             </h2>
 
-            <p className="text-sm text-slate-600 mt-3">
+            <p className="text-sm text-slate-600 mt-3 flex flex-wrap gap-3">
               <span className="text-emerald-600 font-semibold">
                 {correctQuestions.length} Correct
-              </span>{" "}
-              ·{" "}
+              </span>
               <span className="text-red-600 font-semibold">
                 {incorrectQuestions.length} Incorrect
-              </span>{" "}
-              ·{" "}
+              </span>
               <span className="text-amber-600 font-semibold">
-                {unansweredQuestions.length || 0} unanswered
+                {unansweredQuestions.length || 0} Unanswered
               </span>
             </p>
           </div>
-          <div className="text-right">
-            <p className="text-xs text-slate-500 mb-1">Overall Progress</p>
-            <div className="font-bold text-xl text-slate-700">
-              {overallCompletion || 0}% Completed
+
+          {/* Right: Overall Progress */}
+          <div className="sm:w-48">
+            <p className="text-xs text-slate-500 mb-1 uppercase tracking-wide">
+              Overall Progress
+            </p>
+
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-bold text-lg text-slate-700">
+                {overallCompletion || 0}%
+              </span>
+              <span className="text-sm text-slate-400">Completed</span>
             </div>
-            <div className="w-full bg-slate-200 rounded-full h-2 mt-1">
+
+            <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
               <div
-                className="bg-sky-500 h-2 rounded-full"
+                className="bg-gradient-to-r from-sky-400 to-emerald-500 h-3 rounded-full transition-all duration-700"
                 style={{ width: `${overallCompletion || 0}%` }}
               ></div>
             </div>
@@ -269,88 +273,98 @@ export default function ExamReview() {
           >
             {f.label}
             {filterStatus === f.value && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-900" />
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-600" />
             )}
           </button>
         ))}
       </div>
 
       {/* Question List (Pagination and rendering logic remains the same) */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         {paginatedQuestions.map((q) => {
           const isCorrect = q.userAnswer === q.correctAnswer;
-          const isUnanswered = q.userAnswer === null;
+          const isUnanswered = q.status === "unanswered";
           const isExpanded = selectedQuestion === q.id;
           const anyExpanded = selectedQuestion !== null;
-          const isIncorrect =
-            q.userAnswer !== q.correctAnswer && q.userAnswer !== null;
+          const isIncorrect = !isCorrect && !isUnanswered;
+
+          console.log(q);
+          console.log("correct", isCorrect);
+          console.log("unasnswered", isUnanswered);
+          console.log("incorrect", isIncorrect);
+
+          const getOptionClasses = (idx: number) => {
+            const isUser = idx === q.userAnswer;
+            const isRight = idx === q.correctAnswer;
+
+            let base =
+              "p-3 rounded-md text-sm flex items-start gap-2 transition-colors";
+            if (isRight) base += " bg-emerald-50";
+            else if (isUser && isIncorrect) base += " bg-red-50";
+            else base += " bg-slate-50";
+
+            return base;
+          };
+
+          const getOptionTextColor = (idx: number) => {
+            const isUser = idx === q.userAnswer;
+            const isRight = idx === q.correctAnswer;
+
+            if (isRight) return "text-emerald-900";
+            if (isUser && isIncorrect) return "text-red-900";
+            return "text-slate-700";
+          };
+
+          const getLetterColor = (idx: number) => {
+            const isUser = idx === q.userAnswer;
+            const isRight = idx === q.correctAnswer;
+
+            if (isRight) return "text-emerald-700 font-medium";
+            if (isUser && isIncorrect) return "text-red-700 font-medium";
+            return "text-slate-500 font-medium";
+          };
 
           return (
             <div
               key={q.id}
-              className={`bg-slate-200/70 backdrop-blur-sm border border-slate-200 rounded-lg overflow-hidden hover:border-slate-300 transition-colors
-    ${
-      anyExpanded && selectedQuestion !== q.id ? "blur-[1px] opacity-50 " : ""
-    }`}
+              className={`bg-slate-200/70 backdrop-blur-sm border border-slate-200 rounded-lg overflow-hidden hover:border-slate-300 transition-all duration-200
+        ${anyExpanded && !isExpanded ? "blur-[0.8px] opacity-50" : ""}`}
             >
+              {/* Question Header */}
               <div
-                className="p-4 cursor-pointer flex items-start gap-3"
+                className="p-4 cursor-pointer flex items-start gap-1"
                 onClick={() => setSelectedQuestion(isExpanded ? null : q.id)}
               >
-                <span className="text-sm text-slate-400 font-medium mt-0.5 flex-shrink-0 w-8">
+                <span className="text-sm text-slate-400 mt-0.5 w-5 flex-shrink-0">
                   {q.questionNumber}
                 </span>
-                <p className="text-slate-700 flex-1">{q.questionText}</p>
+                <p className="text-slate-700 flex-1 font-medium">
+                  {q.questionText}
+                </p>
                 {isUnanswered ? (
-                  <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <AlertCircle className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
                 ) : isCorrect ? (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
                 ) : (
-                  <XCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                  <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
                 )}
               </div>
 
+              {/* Expanded Options */}
               {isExpanded && (
                 <div className="px-4 pb-4 pt-2 border-t border-slate-100">
-                  <div className="space-y-2 ml-11">
+                  <div className="space-y-2 ml-1">
                     {q.options.map((opt, idx) => {
+                      const letterLabel = String.fromCharCode(65 + idx);
                       const isUser = idx === q.userAnswer;
                       const isRight = idx === q.correctAnswer;
-                      const letterLabel = String.fromCharCode(65 + idx);
 
                       return (
-                        <div
-                          key={idx}
-                          className={`p-3 rounded-md text-sm flex items-start gap-2 ${
-                            isRight
-                              ? "bg-emerald-50"
-                              : isUser && isIncorrect
-                              ? "bg-red-50"
-                              : "bg-slate-50"
-                          }`}
-                        >
-                          <span
-                            className={`font-medium flex-shrink-0 ${
-                              isRight
-                                ? "text-emerald-700"
-                                : isUser && isIncorrect
-                                ? "text-red-700"
-                                : "text-slate-500"
-                            }`}
-                          >
+                        <div key={idx} className={getOptionClasses(idx)}>
+                          <span className={getLetterColor(idx)}>
                             {letterLabel}.
                           </span>
-                          <span
-                            className={
-                              isRight
-                                ? "text-emerald-900"
-                                : isUser && isIncorrect
-                                ? "text-red-900"
-                                : "text-slate-700"
-                            }
-                          >
-                            {opt}
-                          </span>
+                          <span className={getOptionTextColor(idx)}>{opt}</span>
                           {isRight && (
                             <CheckCircle2 className="w-4 h-4 text-emerald-600 ml-auto mt-0.5" />
                           )}
@@ -360,10 +374,11 @@ export default function ExamReview() {
                         </div>
                       );
                     })}
+
                     {isUnanswered && (
                       <p className="text-sm text-amber-700 italic mt-3">
-                        No answer submitted. The correct answer is highlighted
-                        in green.
+                        No answer submitted. Correct answer is highlighted in
+                        green.
                       </p>
                     )}
                   </div>
@@ -373,6 +388,7 @@ export default function ExamReview() {
           );
         })}
 
+        {/* Empty State */}
         {filteredQuestions.length === 0 && (
           <div className="text-center p-12 bg-white rounded-lg border border-slate-200 text-slate-500">
             No questions match the current filter: "{filterStatus.toUpperCase()}

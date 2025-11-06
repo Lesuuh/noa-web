@@ -1,11 +1,13 @@
 import { Dispatch, SetStateAction } from "react";
-import { Bell, Menu } from "@/lib/icons";
+import { Menu } from "@/lib/icons";
+import { useUser } from "@/contexts/UserContext";
 
 interface NavbarProps {
   setSidebarOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export default function Navbar({ setSidebarOpen }: NavbarProps) {
+  const { user } = useUser();
   return (
     <header className="h-16 bg-white shadow-sm flex items-center justify-between px-6">
       {/* Left side: Mobile menu button + Search bar */}
@@ -21,32 +23,27 @@ export default function Navbar({ setSidebarOpen }: NavbarProps) {
         <div className="w-10 h-8 md:hidden bg-gradient-to-br from-emerald-600 to-emerald-800 rounded flex items-center justify-center text-white font-bold text-sm drop-shadow-md">
           NOA
         </div>
-        {/* Search bar
-        <div className="flex items-center gap-2 w-full max-w-md">
-          <FiSearch className="text-gray-500" />
-          <input
-            type="text"
-            placeholder="Search..."
-            className="w-full border-none outline-none bg-transparent text-sm"
-          />
-        </div> */}
       </div>
 
       {/* Right side: Notification + Avatar */}
       <div className="flex items-center gap-6">
-        <button className="relative">
+        {/* <button className="relative">
           <Bell className="text-gray-600" />
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
             3
           </span>
-        </button>
+        </button> */}
         <div className="flex items-center gap-2">
-          <img
-            src="https://i.pravatar.cc/40"
-            alt="avatar"
-            className="w-8 h-8 rounded-full"
-          />
-          <span className="text-sm font-medium hidden sm:inline">Lesuuh</span>
+          <div
+            className="rounded-full w-8 h-8 bg-emerald-600 text-white flex items-center justify-center text-xl"
+            aria-label={`User initial ${user?.full_name?.charAt(0) ?? ""}`}
+          >
+            {user?.full_name?.charAt(0) ?? "?"}
+          </div>
+
+          <span className="text-sm font-medium hidden sm:inline">
+            {user?.full_name}
+          </span>
         </div>
       </div>
     </header>

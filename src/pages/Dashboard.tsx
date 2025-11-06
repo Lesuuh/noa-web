@@ -80,7 +80,7 @@ export default function Dashboard() {
 
   const scoreTrendData = useMemo(() => {
     return attempts
-      ?.slice(0, 5)
+      ?.slice(0, 10)
       .reverse()
       .map(({ started_at, score }) => {
         const { dateLabel } = formatAttemptTime(started_at);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, lazy } from "react";
+import { useState, useEffect, useCallback, useRef, lazy, useMemo } from "react";
 import { useUser } from "@/contexts/UserContext";
 import { supabase } from "@/supabase";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -66,11 +66,16 @@ export default function ExamPage() {
     enabled: !!attemptCount?.allowed,
   });
 
-  const { data: allQuestions = [], isLoading: loadingQuestions } = useQuery({
-    queryKey: ["questions"],
-    queryFn: fetchQuestions,
-    enabled: !!attemptCount?.allowed,
-  });
+  const { data: unShuffledQuestions = [], isLoading: loadingQuestions } =
+    useQuery({
+      queryKey: ["questions"],
+      queryFn: fetchQuestions,
+      enabled: !!attemptCount?.allowed,
+    });
+
+  const allQuestions = useMemo(() => {
+    return [...unShuffledQuestions].sort(() => Math.random() - 0.5);
+  }, [unShuffledQuestions]);
 
   // ✅ Update duration when fetched
   useEffect(() => {
@@ -203,7 +208,6 @@ export default function ExamPage() {
     const currentQuestionId = allQuestions[currentQuestion].id;
     setAnswers((prev) => ({ ...prev, [currentQuestionId]: optionIndex }));
   };
-
   const handleNext = () => {
     if (currentQuestion < allQuestions.length - 1)
       setCurrentQuestion(currentQuestion + 1);
@@ -213,7 +217,7 @@ export default function ExamPage() {
     if (currentQuestion > 0) setCurrentQuestion(currentQuestion - 1);
   };
 
-  // ✅ Submit function using refs (doesn't need to be in deps)
+  // ✅ Submit function using refs
   const submitExam = useCallback(async () => {
     if (!user?.id || !latestExamAttempt.current?.id) {
       setError("You must be logged in to submit this exam.");
@@ -329,26 +333,26 @@ export default function ExamPage() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+      <header className="sticky top-0 z-50 bg-white shadow-md border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           {/* Exam Info */}
-          <div className="w-full sm:w-auto flex-1 text-center sm:text-left">
-            <h1 className="text-base sm:text-xl font-bold truncate">
+          <div className="flex-1 w-full sm:w-auto text-center sm:text-left">
+            <h1 className="text-lg sm:text-2xl font-extrabold text-slate-900 truncate">
               2025 Promotional Exam
             </h1>
-            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-              Question {currentQuestion + 1} of {allQuestions.length}
-            </p>
-            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-              Attempt {attemptCount?.attempts} of 10
-            </p>
+            <div className="flex flex-wrap gap-2 mt-1 text-sm text-slate-500 font-medium">
+              <span>
+                Question {currentQuestion + 1} / {allQuestions.length}
+              </span>
+              <span>• Attempt {attemptCount?.attempts || 1} of 10</span>
+            </div>
           </div>
 
           {/* Progress Bar */}
-          <div className="hidden sm:flex items-center gap-2 px-3 sm:px-4 py-2 bg-gray-100 rounded-lg">
-            <div className="w-24 sm:w-32 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+          <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-xl flex-shrink-0">
+            <div className="w-32 h-2 rounded-full bg-slate-200 overflow-hidden">
               <div
-                className="h-full bg-cyan-400 transition-all duration-300"
+                className="h-full bg-gradient-to-r from-cyan-400 to-emerald-400 transition-all duration-300"
                 style={{
                   width: `${
                     ((currentQuestion + 1) / allQuestions.length) * 100
@@ -356,18 +360,18 @@ export default function ExamPage() {
                 }}
               />
             </div>
-            <span className="text-xs sm:text-sm font-medium text-gray-500">
+            <span className="text-xs font-semibold text-slate-600">
               {answeredCount}/{allQuestions.length}
             </span>
           </div>
 
           {/* Timer & Submit */}
-          <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end">
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
             <div
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-semibold text-sm sm:text-base transition-colors ${
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-semibold text-sm sm:text-base transition-colors border ${
                 isTimeWarning
-                  ? "bg-red-100 text-red-500 border border-red-200"
-                  : "bg-gray-100 text-gray-700 border border-gray-200"
+                  ? "bg-red-50 text-red-600 border-red-200"
+                  : "bg-slate-100 text-slate-700 border-slate-200"
               }`}
             >
               <Clock className="w-4 h-4 flex-shrink-0" />
@@ -375,11 +379,11 @@ export default function ExamPage() {
             </div>
 
             <Button
-              className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm sm:text-base font-semibold rounded-lg transition-all duration-200"
+              className="flex items-center justify-center gap-2 px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm sm:text-base font-semibold rounded-lg shadow-sm transition-all duration-200"
               onClick={submitExam}
             >
-              <CheckCircle2 className="w-4 h-4" />
-              <span>Submit</span>
+              <CheckCircle2 className="w-5 h-5" />
+              <span>Submit Exam</span>
             </Button>
           </div>
         </div>
@@ -388,54 +392,52 @@ export default function ExamPage() {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Question Card */}
-        <Card className="bg-white border border-gray-200 shadow-sm mb-8 overflow-hidden">
-          <CardContent className="p-6 sm:p-8">
+        <Card className="bg-white border border-gray-200 shadow-md mb-8 overflow-hidden">
+          <CardContent className="sm:p-8">
             {/* Question Header */}
-            <div className="flex items-start gap-3 mb-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-100 flex items-center justify-center">
+            <div className="flex items-start gap-3 mb-6">
+              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-cyan-100 flex items-center justify-center">
                 <span className="text-cyan-600 font-bold text-sm">
                   {currentQuestion + 1}
                 </span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 leading-relaxed flex-1">
+              <h2 className="text-base sm:text-xl font-bold text-gray-900 leading-relaxed flex-1">
                 {question.question}
               </h2>
             </div>
 
             {/* Options */}
-            <div className="space-y-3">
+            <div className="space-y-4">
               {question.options.map((option, idx) => {
                 const isSelected = answers[question.id] === idx;
                 return (
                   <button
                     key={idx}
                     onClick={() => handleOptionChange(idx)}
-                    className={`w-full text-left p-4 rounded-lg border transition-all duration-200 ${
+                    className={`w-full text-sm text-left p-4 rounded-xl border transition-all duration-200 flex items-center gap-4 hover:shadow-sm ${
                       isSelected
-                        ? "bg-cyan-50 border-cyan-400 shadow-sm"
+                        ? "bg-cyan-50 border-cyan-400 shadow-inner"
                         : "bg-gray-50 border-gray-200 hover:bg-gray-100"
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                          isSelected
-                            ? "bg-cyan-400 border-cyan-400"
-                            : "border-gray-300"
-                        }`}
-                      >
-                        {isSelected && (
-                          <div className="w-2 h-2 bg-white rounded-full" />
-                        )}
-                      </div>
-                      <span
-                        className={`font-medium ${
-                          isSelected ? "text-gray-900" : "text-gray-700"
-                        }`}
-                      >
-                        {option}
-                      </span>
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                        isSelected
+                          ? "bg-cyan-400 border-cyan-400"
+                          : "border-gray-300"
+                      }`}
+                    >
+                      {isSelected && (
+                        <div className="w-2.5 h-2.5 bg-white rounded-full" />
+                      )}
                     </div>
+                    <span
+                      className={`font-medium text-gray-800 transition-colors ${
+                        isSelected ? "text-gray-900" : "text-gray-700"
+                      }`}
+                    >
+                      {option}
+                    </span>
                   </button>
                 );
               })}

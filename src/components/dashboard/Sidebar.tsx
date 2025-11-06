@@ -1,4 +1,4 @@
-import { HelpCircle, Settings, Star, Target, X } from "@/lib/icons";
+import { Clock, HelpCircle, Settings, Star, Target, X } from "@/lib/icons";
 import { Dispatch, lazy, SetStateAction, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -8,7 +8,7 @@ import { logoutUser } from "@/api/api";
 
 const navItems = [
   { label: "Dashboard", icon: Target, href: "/" },
-  // { label: "Take Exam", icon: Zap, href: "/exam" },
+  { label: "Attempts", icon: Clock, href: "/history" },
   { label: "Settings", icon: Settings, href: "/settings" },
   { label: "Support", icon: HelpCircle, href: "/support" },
   { label: "Freemium", icon: Star, href: "/freemium" },
