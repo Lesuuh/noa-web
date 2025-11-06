@@ -1,4 +1,5 @@
-import { TrendingUp, Trophy, Target, Zap } from "lucide-react";
+import { Award, Target, TrendingUp, Trophy, Zap } from "@/lib/icons";
+import { useMemo } from "react";
 import {
   CartesianGrid,
   ResponsiveContainer,
@@ -17,7 +18,7 @@ type ScoreTrend = {
 
 type Achievements = {
   label: string;
-  value: number | string;
+  value: number;
   color: string;
 };
 
@@ -28,14 +29,6 @@ const Achievement_Chart = ({
   achievements: Achievements[];
   scoreTrendData: ScoreTrend[];
 }) => {
-  // Get icon based on achievement value
-  const getAchievementIcon = (value: number | string) => {
-    const numValue = typeof value === "string" ? parseFloat(value) : value;
-    if (numValue >= 90) return Trophy;
-    if (numValue >= 70) return Target;
-    return Zap;
-  };
-
   // Custom tooltip for the chart
   const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
     if (active && payload && payload.length) {
@@ -50,6 +43,79 @@ const Achievement_Chart = ({
     }
 
     return null;
+  };
+  const Chart = useMemo(() => {
+    if (!scoreTrendData.length) return null;
+    return (
+      <ResponsiveContainer width="100%" height={240}>
+        <AreaChart
+          data={scoreTrendData}
+          margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+        >
+          <defs>
+            <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop
+                offset="5%"
+                stopColor="rgb(16, 185, 129)"
+                stopOpacity={0.2}
+              />
+              <stop
+                offset="95%"
+                stopColor="rgb(16, 185, 129)"
+                stopOpacity={0}
+              />
+            </linearGradient>
+          </defs>
+          <CartesianGrid
+            stroke="rgb(226, 232, 240)"
+            strokeDasharray="3 3"
+            vertical={false}
+          />
+          <XAxis
+            dataKey="date"
+            tickLine={false}
+            axisLine={{ stroke: "rgb(203, 213, 225)", strokeWidth: 1 }}
+            tick={{ fill: "rgb(100, 116, 139)", fontSize: 11 }}
+            interval="preserveStartEnd"
+            dy={10}
+          />
+          <YAxis
+            domain={[0, 100]}
+            tickLine={false}
+            axisLine={{ stroke: "rgb(203, 213, 225)", strokeWidth: 1 }}
+            tick={{ fill: "rgb(100, 116, 139)", fontSize: 11 }}
+            ticks={[0, 25, 50, 75, 100]}
+          />
+          <Tooltip content={<CustomTooltip />} />
+          <Area
+            type="monotone"
+            dataKey="score"
+            stroke="rgb(16, 185, 129)"
+            strokeWidth={3}
+            fill="url(#scoreGradient)"
+            dot={{
+              r: 4,
+              fill: "rgb(16, 185, 129)",
+              strokeWidth: 2,
+              stroke: "white",
+            }}
+            activeDot={{
+              r: 6,
+              fill: "rgb(16, 185, 129)",
+              strokeWidth: 2,
+              stroke: "white",
+            }}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    );
+  }, [scoreTrendData]);
+
+  // Get icon based on achievement value
+  const getIcon = (value: number) => {
+    if (value >= 90) return Award;
+    if (value >= 70) return Target;
+    return Zap;
   };
 
   return (
@@ -69,9 +135,7 @@ const Achievement_Chart = ({
 
         <div className="space-y-5">
           {achievements.map((ach) => {
-            const Icon = getAchievementIcon(ach.value);
-            const numValue =
-              typeof ach.value === "string" ? parseFloat(ach.value) : ach.value;
+            const Icon = getIcon(ach.value);
 
             return (
               <div key={ach.label} className="group">
@@ -89,7 +153,7 @@ const Achievement_Chart = ({
                 <div className="relative h-2.5 bg-slate-100 rounded-full overflow-hidden">
                   <div
                     className={`${ach.color} h-full rounded-full transition-all duration-700 ease-out relative`}
-                    style={{ width: `${numValue}%` }}
+                    style={{ width: `${ach.value}%` }}
                   >
                     {/* Shine effect */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
@@ -130,67 +194,7 @@ const Achievement_Chart = ({
             </div>
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height={240}>
-            <AreaChart
-              data={scoreTrendData}
-              margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-            >
-              <defs>
-                <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="5%"
-                    stopColor="rgb(16, 185, 129)"
-                    stopOpacity={0.2}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor="rgb(16, 185, 129)"
-                    stopOpacity={0}
-                  />
-                </linearGradient>
-              </defs>
-              <CartesianGrid
-                stroke="rgb(226, 232, 240)"
-                strokeDasharray="3 3"
-                vertical={false}
-              />
-              <XAxis
-                dataKey="date"
-                tickLine={false}
-                axisLine={{ stroke: "rgb(203, 213, 225)", strokeWidth: 1 }}
-                tick={{ fill: "rgb(100, 116, 139)", fontSize: 11 }}
-                interval="preserveStartEnd"
-                dy={10}
-              />
-              <YAxis
-                domain={[0, 100]}
-                tickLine={false}
-                axisLine={{ stroke: "rgb(203, 213, 225)", strokeWidth: 1 }}
-                tick={{ fill: "rgb(100, 116, 139)", fontSize: 11 }}
-                ticks={[0, 25, 50, 75, 100]}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Area
-                type="monotone"
-                dataKey="score"
-                stroke="rgb(16, 185, 129)"
-                strokeWidth={3}
-                fill="url(#scoreGradient)"
-                dot={{
-                  r: 4,
-                  fill: "rgb(16, 185, 129)",
-                  strokeWidth: 2,
-                  stroke: "white",
-                }}
-                activeDot={{
-                  r: 6,
-                  fill: "rgb(16, 185, 129)",
-                  strokeWidth: 2,
-                  stroke: "white",
-                }}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          Chart
         )}
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { ArrowRight, Clock, Trophy, TrendingUp } from "lucide-react";
+import { ArrowRight, Clock, Trophy, TrendingUp } from "@/lib/icons";
 import { Link } from "react-router-dom";
 import { formatAttemptTime } from "../formattedDateTime";
 import { ExamAttempt } from "@/types";

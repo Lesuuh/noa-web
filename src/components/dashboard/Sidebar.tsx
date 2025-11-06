@@ -1,7 +1,9 @@
-import { HelpCircle, Settings, Star, Target, X } from "lucide-react";
-import { Dispatch, SetStateAction, useState } from "react";
+import { HelpCircle, Settings, Star, Target, X } from "@/lib/icons";
+import { Dispatch, lazy, SetStateAction, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import LogoutModal from "../modals/LogoutModal";
+
+const LogoutModal = lazy(() => import("../modals/LogoutModal"));
+
 import { logoutUser } from "@/api/api";
 
 const navItems = [
@@ -42,7 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
         {/* Rest of your sidebar code stays the same */}
         <div className="flex items-center justify-between p-4 border-b border-slate-200">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded flex items-center justify-center text-white font-bold text-sm drop-shadow-md">
+            <div className="w-10 h-8 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded flex items-center justify-center text-white font-bold text-sm drop-shadow-md">
               NOA
             </div>
             <div>

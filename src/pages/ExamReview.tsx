@@ -1,11 +1,14 @@
-import { useEffect, useState } from "react";
-import { ChevronLeft, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { useEffect, useState, lazy } from "react";
 import { supabase } from "@/supabase";
 import { useUser } from "@/contexts/UserContext";
 import { ExamAttempt, Question } from "@/types";
 import { Link, useParams } from "react-router-dom";
 import { formatAttemptTime } from "@/components/formattedDateTime";
-import Loader from "@/components/Loader";
+
+// Lazy-loaded components
+const Loader = lazy(() => import("@/components/Loader"));
+
+import { AlertCircle, CheckCircle2, ChevronLeft, XCircle } from "@/lib/icons";
 
 export default function ExamReview() {
   const [filterStatus, setFilterStatus] = useState<

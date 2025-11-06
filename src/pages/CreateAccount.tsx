@@ -2,11 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { FcGoogle } from "react-icons/fc";
+
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/supabase";
+import GoogleIcon from "@/lib/GoogleIcon";
+
 
 interface FormDetailsProps {
   name: string;
@@ -91,6 +93,7 @@ const CreateAccount = () => {
           src="/login.svg"
           alt="Signup illustration"
           className="mt-10 w-3/4"
+          loading="lazy"
         />
       </motion.div>
 
@@ -114,7 +117,7 @@ const CreateAccount = () => {
           variant="outline"
           className="w-full flex items-center justify-center gap-2 border-slate-300 bg-slate-50 hover:bg-slate-100 transition-all"
         >
-          <FcGoogle className="text-xl" />
+          <GoogleIcon />
           Continue with Google
         </Button>
 

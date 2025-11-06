@@ -1,5 +1,5 @@
 import { UserContextType } from "@/types";
-import { Play, Clock } from "lucide-react";
+import { Clock, Play } from "@/lib/icons";
 
 type buttonStats = {
   lastScore: number;

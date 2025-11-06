@@ -26,7 +26,13 @@ const App = () => {
 
             {/* Protected routes (require auth) */}
             <Route element={<AuthGuard />}>
-              <Route element={<DashboardLayout />}>
+              <Route
+                element={
+                  <Suspense fallback={<Loader />}>
+                    <DashboardLayout />
+                  </Suspense>
+                }
+              >
                 <Route index path="/" element={<Dashboard />} />
                 <Route path="/review/:id" element={<ExamReview />} />
                 <Route path="/freemium" element={<Freemium />} />

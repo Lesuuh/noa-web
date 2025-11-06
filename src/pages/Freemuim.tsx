@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Zap, Crown, ArrowRight } from "lucide-react";
+import { Check, Zap, Crown, ArrowRight } from "@/lib/icons";
 
 export default function Freemuim() {
   const [hoveredPlan, setHoveredPlan] = useState<number | null>(null);

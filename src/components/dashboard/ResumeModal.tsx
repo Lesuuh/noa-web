@@ -1,4 +1,4 @@
-import { Target, X } from "lucide-react";
+import { Target, X } from "@/lib/icons";
 import { AnimatePresence, motion } from "motion/react";
 import { Dispatch, SetStateAction } from "react";
 // import { useNavigate } from "react-router-dom";

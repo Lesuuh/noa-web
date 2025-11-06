@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, lazy, Suspense } from "react";
-import { Trophy, Target, TrendingUp, TimerIcon } from "lucide-react";
+import { Trophy, Target, TrendingUp, TimerIcon } from "@/lib/icons";
 
 import { useUser } from "@/contexts/UserContext";
 import Loader from "@/components/Loader";
@@ -166,7 +166,7 @@ export default function Dashboard() {
       <SEO
         title="NOA Practice Dashboard"
         description="Track your NOA exam progress, resume tests, and challenge yourself with new CBT practice exams."
-        url="http://localhost:5173"
+        url="http://localhost:4173"
       />
 
       <main className="flex-1  md:p-8 space-y-8 overflow-auto ml-0">

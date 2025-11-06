@@ -1,22 +1,35 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { ChevronLeft, ChevronRight, Clock, CheckCircle2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-
-import { ExamAttempt } from "@/types";
-import ExamResult from "./ExamResult";
-import { TimerDisplay } from "@/components/TimerDisplay";
-import { supabase } from "@/supabase";
+import { useState, useEffect, useCallback, useRef, lazy } from "react";
 import { useUser } from "@/contexts/UserContext";
-import Loader from "@/components/Loader";
+import { supabase } from "@/supabase";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   checkAttemptAllowance,
   fetchQuestions,
   fetchTestDuration,
   syncExam,
 } from "@/api/api";
-import UpgradeModal from "@/components/modals/UpgradeModal";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ExamAttempt } from "@/types";
+
+// Lazy-loaded components
+const Loader = lazy(() => import("@/components/Loader"));
+const ExamResult = lazy(() => import("./ExamResult"));
+const TimerDisplay = lazy(() =>
+  import("@/components/TimerDisplay").then((mod) => ({
+    default: mod.TimerDisplay,
+  }))
+);
+const UpgradeModal = lazy(() => import("@/components/modals/UpgradeModal"));
+const Button = lazy(() =>
+  import("@/components/ui/button").then((mod) => ({ default: mod.Button }))
+);
+const Card = lazy(() =>
+  import("@/components/ui/card").then((mod) => ({ default: mod.Card }))
+);
+const CardContent = lazy(() =>
+  import("@/components/ui/card").then((mod) => ({ default: mod.CardContent }))
+);
+
+import { CheckCircle2, ChevronLeft, ChevronRight, Clock } from "@/lib/icons";
 
 export default function ExamPage() {
   const { user, loading } = useUser();

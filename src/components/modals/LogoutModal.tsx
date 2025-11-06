@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { X } from "lucide-react";
+import { X } from "@/lib/icons";
 
 interface LogoutModalProps {
   handleLogout: () => void;

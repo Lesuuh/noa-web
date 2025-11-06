@@ -60,6 +60,7 @@ body {
   background-color: var(--color-white);
   color: var(--color-text-black);
   font-family: var(--font-sans);
+  font-display: swap;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

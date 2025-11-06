@@ -1,4 +1,4 @@
-import { Lock, ArrowRight } from "lucide-react";
+import { Lock, ArrowRight } from "@/lib/icons";
 import { useNavigate } from "react-router-dom";
 
 export default function UpgradeModal({
