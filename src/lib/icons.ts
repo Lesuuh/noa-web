@@ -21,5 +21,6 @@ export {
   Check,
   Bell,
   Award,
+  List,
   Menu,
 } from "lucide-react";

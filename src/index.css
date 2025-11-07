@@ -1,4 +1,12 @@
 @import "tailwindcss";
+/* @import "tailwindcss/utilities"; */
+/* @import "tailwindcss/preflight"; */
+
+/* @layer base {
+  :root {
+    --radius: 0.5rem;
+  }
+} */
 
 /* ===============================
    🎨 THEME VARIABLES

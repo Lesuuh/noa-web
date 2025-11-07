@@ -1,5 +1,5 @@
 import { supabase } from "@/supabase";
-import { ExamAttempt, Question } from "@/types";
+import { ExamAttempt, Question, User } from "@/types";
 
 // Email + password login
 export const loginWithEmail = async ({
@@ -136,4 +136,32 @@ export const syncExam = async (
   }
 
   return { success: true };
+};
+
+export const deleteUserAccount = async (user_id: string) => {
+  await supabase.from("exam_attempts").delete().eq("id", user_id);
+  await supabase.from("users").delete().eq("id", user_id);
+};
+
+export const updateUserProfile = async (
+  formData: { name: string; email: string },
+  user: User
+) => {
+  if (formData.email !== user.email) {
+    const { error: authError } = await supabase.auth.updateUser({
+      email: formData.email,
+    });
+
+    if (authError) throw Error;
+  }
+
+  if (formData.name !== user.full_name) {
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({ full_name: formData.name })
+      .eq("id", user?.id);
+
+    if (profileError) throw profileError;
+  }
+  return { success: true, updated: formData };
 };

@@ -2,7 +2,7 @@ import { useEffect, useState, lazy } from "react";
 import { supabase } from "@/supabase";
 import { useUser } from "@/contexts/UserContext";
 import { ExamAttempt, Question } from "@/types";
-import { Link, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { formatAttemptTime } from "@/components/formattedDateTime";
 
 // Lazy-loaded components
@@ -19,6 +19,7 @@ export default function ExamReview() {
   const questionsPerPage = 10;
   const { user } = useUser();
   const { id } = useParams();
+  const navigate = useNavigate();
   console.log(user);
 
   const [attempts, setAttempts] = useState<ExamAttempt | null>(null);
@@ -164,12 +165,12 @@ export default function ExamReview() {
     <div className="min-h-screen bg-slate-50 text-slate-900  md:p-8">
       {/* Header */}
       <div className="flex items-center gap-3 mb-5">
-        <Link
-          to="/"
-          className=" rounded-md hover:bg-slate-200 transition-colors"
+        <button
+          onClick={() => navigate(-1)}
+          className="rounded-md hover:bg-slate-200 transition-colors p-1"
         >
           <ChevronLeft className="w-5 h-5 text-slate-700" />
-        </Link>
+        </button>
         <div>
           <h1 className="text-xl font-bold">Exam Review</h1>
           <p className="text-xs md:text-sm text-slate-500">
