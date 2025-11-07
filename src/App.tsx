@@ -13,7 +13,7 @@ const ExamReview = lazy(() => import("./pages/ExamReview"));
 const ExamPage = lazy(() => import("./pages/ExamPage"));
 const Freemium = lazy(() => import("./pages/Freemuim"));
 const History = lazy(() => import("./pages/History"));
-const Settings = lazy(() => import("./pages/Settings"));
+// const Settings = lazy(() => import("./pages/Settings"));
 
 const queryClient = new QueryClient();
 const App = () => {
@@ -39,7 +39,7 @@ const App = () => {
                 <Route path="/review/:id" element={<ExamReview />} />
                 <Route path="/freemium" element={<Freemium />} />
                 <Route path="/history" element={<History />} />
-                <Route path="/settings" element={<Settings />} />
+                {/* <Route path="/settings" element={<Settings />} /> */}
               </Route>
               <Route path="/exam" element={<ExamPage />} />
             </Route>
