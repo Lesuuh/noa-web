@@ -7,8 +7,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/supabase";
-import GoogleIcon from "@/lib/GoogleIcon";
-
+// import GoogleIcon from "@/lib/GoogleIcon";
 
 interface FormDetailsProps {
   name: string;
@@ -66,13 +65,13 @@ const CreateAccount = () => {
     navigate("/");
   };
 
-  const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin },
-    });
-    if (error) setServerError(error.message);
-  };
+  // const handleGoogleLogin = async () => {
+  //   const { error } = await supabase.auth.signInWithOAuth({
+  //     provider: "google",
+  //     options: { redirectTo: window.location.origin },
+  //   });
+  //   if (error) setServerError(error.message);
+  // };
 
   return (
     <section className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
@@ -112,24 +111,24 @@ const CreateAccount = () => {
           </p>
         </div>
 
-        <Button
+        {/* <Button
           onClick={handleGoogleLogin}
           variant="outline"
           className="w-full flex items-center justify-center gap-2 border-slate-300 bg-slate-50 hover:bg-slate-100 transition-all"
         >
           <GoogleIcon />
           Continue with Google
-        </Button>
+        </Button> */}
 
         {/* Divider */}
-        <div className="relative my-6 text-center text-sm">
+        {/* <div className="relative my-6 text-center text-sm">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-slate-200" />
           </div>
           <span className="relative z-10 bg-white px-2 text-slate-500">
             or create with email
           </span>
-        </div>
+        </div> */}
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">

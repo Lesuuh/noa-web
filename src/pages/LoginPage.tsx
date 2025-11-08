@@ -1,14 +1,14 @@
 import { Button } from "@/components/ui/button";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 import { useNavigate } from "react-router-dom";
 import { LazyMotion, domAnimation } from "motion/react";
 import * as m from "motion/react-m";
 
-import { loginWithEmail, loginWithGoogle } from "@/api/api";
+import { loginWithEmail } from "@/api/api";
 import { useUser } from "@/contexts/UserContext";
-import GoogleIcon from "@/lib/GoogleIcon";
+// import GoogleIcon from "@/lib/GoogleIcon";
 
 interface LoginDetailsProps {
   email: string;
@@ -50,14 +50,14 @@ const LoginPage = () => {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    try {
-      await loginWithGoogle();
-      // navigate("/");
-    } catch (error) {
-      if (error instanceof Error) setServerError(error.message);
-    }
-  };
+  // const handleGoogleLogin = async () => {
+  //   try {
+  //     await loginWithGoogle();
+  //     // navigate("/");
+  //   } catch (error) {
+  //     if (error instanceof Error) setServerError(error.message);
+  //   }
+  // };
 
   return (
     <section className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
@@ -101,7 +101,7 @@ const LoginPage = () => {
           </div>
 
           {/* Google login */}
-          <Button
+          {/* <Button
             onClick={handleGoogleLogin}
             variant="outline"
             className="w-full flex items-center justify-center gap-2 border-slate-300 bg-slate-50 hover:bg-slate-100 transition-all"
@@ -110,17 +110,17 @@ const LoginPage = () => {
               <GoogleIcon />
             </Suspense>
             Continue with Google
-          </Button>
+          </Button> */}
 
           {/* Divider */}
-          <div className="relative my-6 text-center text-sm">
+          {/* <div className="relative my-6 text-center text-sm">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-slate-200" />
             </div>
             <span className="relative z-10 bg-white px-2 text-slate-500">
               or log in with email
             </span>
-          </div>
+          </div> */}
 
           {/* Login form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
