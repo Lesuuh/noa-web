@@ -2,35 +2,34 @@ type kpiCard = {
   label: string;
   value: number | string;
   icon: React.ElementType;
-  bgColor: string;
-  textColor: string;
-  borderColor: string;
+  textColor: string; // Used for icon and status accent
 };
 
 const KpiCard = ({ kpiData }: { kpiData: kpiCard[] }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       {kpiData?.map((kpi) => (
         <div
           key={kpi.label}
-          // Added subtle hover shadow
-          className={`${kpi.bgColor} border ${kpi.borderColor} rounded-xl p-4 sm:px-6 py-5 transition-all hover:scale-[1.02] hover:shadow-md`}
+          className="group bg-white border border-slate-200 rounded-[2rem] p-6 transition-all hover:shadow-xl hover:shadow-emerald-900/5 hover:border-emerald-200"
         >
-          <div className="flex items-start justify-between">
-            <div>
-              <p
-                className={`${kpi.textColor} text-2xl sm:text-3xl font-bold mt-2`}
+          <div className="flex flex-col gap-4">
+            <div className="flex justify-between items-start">
+              <div
+                className={`p-3 rounded-2xl bg-slate-50 border border-slate-100 group-hover:bg-emerald-50 group-hover:border-emerald-100 transition-colors`}
               >
-                {kpi.value}
-              </p>
-              <p className="text-slate-500 text-xs font-medium uppercase">
+                <kpi.icon className={`${kpi.textColor} w-6 h-6`} />
+              </div>
+              {/* Optional: Add a small trend indicator here if needed */}
+            </div>
+
+            <div>
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">
                 {kpi.label}
               </p>
-            </div>
-            <div
-              className={`bg-white p-2 sm:p-3 rounded-lg border ${kpi.borderColor}`}
-            >
-              <kpi.icon className={`${kpi.textColor} w-5 h-5 sm:w-6 sm:h-6`} />
+              <p className="text-slate-900 text-3xl font-black tracking-tight">
+                {kpi.value}
+              </p>
             </div>
           </div>
         </div>

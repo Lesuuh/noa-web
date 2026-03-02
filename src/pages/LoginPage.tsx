@@ -1,14 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-
 import { useNavigate } from "react-router-dom";
-import { LazyMotion, domAnimation } from "motion/react";
+import { LazyMotion, domAnimation, AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
 
 import { loginWithEmail } from "@/api/api";
 import { useUser } from "@/contexts/UserContext";
-// import GoogleIcon from "@/lib/GoogleIcon";
 
 interface LoginDetailsProps {
   email: string;
@@ -21,11 +19,10 @@ const LoginPage = () => {
   const [serverError, setServerError] = useState<string>("");
   const { user } = useUser();
 
-  console.log(user);
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isValid, isDirty },
+    formState: { errors, isValid, isDirty },
   } = useForm<LoginDetailsProps>({
     mode: "onChange",
   });
@@ -38,11 +35,9 @@ const LoginPage = () => {
 
   const onSubmit: SubmitHandler<LoginDetailsProps> = async (data) => {
     setLoading(true);
+    setServerError("");
     try {
       await loginWithEmail(data);
-      if (user) {
-        navigate("/");
-      }
     } catch (error) {
       if (error instanceof Error) setServerError(error.message);
     } finally {
@@ -50,153 +45,159 @@ const LoginPage = () => {
     }
   };
 
-  // const handleGoogleLogin = async () => {
-  //   try {
-  //     await loginWithGoogle();
-  //     // navigate("/");
-  //   } catch (error) {
-  //     if (error instanceof Error) setServerError(error.message);
-  //   }
-  // };
-
   return (
-    <section className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-      {/* Left brand column */}
-      <LazyMotion features={domAnimation}>
-        <m.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="hidden lg:flex flex-col justify-center items-center text-center w-1/2 p-10"
-        >
-          <h1 className="text-4xl font-extrabold text-emerald-700 mb-4">
-            NOA Practice Portal
-          </h1>
-          <p className="text-slate-600 text-lg leading-relaxed max-w-md">
-            Prepare smarter, track progress, and dominate your CBT exams — all
-            in one clean dashboard.
-          </p>
-          <img
-            src="/login.svg"
-            alt="Login illustration"
-            className="mt-10 w-3/4"
-            loading="lazy"
-          />
-        </m.div>
-      </LazyMotion>
+    <section className="relative min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-50 via-slate-50 to-emerald-100/50 flex items-center justify-center p-6 overflow-hidden">
+      {/* Background Decorative Elements */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-emerald-200/20 rounded-full blur-3xl" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-200/20 rounded-full blur-3xl" />
 
-      {/* Right login form */}
       <LazyMotion features={domAnimation}>
-        <m.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-slate-200"
-        >
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-semibold text-slate-800">
-              Welcome Back 👋
-            </h2>
-            <p className="text-slate-500 text-sm mt-1">
-              Log in to continue your exam journey
-            </p>
-          </div>
-
-          {/* Google login */}
-          {/* <Button
-            onClick={handleGoogleLogin}
-            variant="outline"
-            className="w-full flex items-center justify-center gap-2 border-slate-300 bg-slate-50 hover:bg-slate-100 transition-all"
+        <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-16 items-center relative z-10">
+          {/* Left Column: Professional Brand Content */}
+          <m.div
+            initial={{ opacity: 0, x: -40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            className="hidden lg:flex flex-col justify-center items-start"
           >
-            <Suspense fallback={<div style={{ width: "24px" }} />}>
-              <GoogleIcon />
-            </Suspense>
-            Continue with Google
-          </Button> */}
+            <m.span className="px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold tracking-widest uppercase mb-6">
+              Official Portal
+            </m.span>
 
-          {/* Divider */}
-          {/* <div className="relative my-6 text-center text-sm">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200" />
+            <h1 className="text-6xl font-black text-slate-900 leading-[1.1] mb-6">
+              Advance Your <br />
+              <span className="text-emerald-700">Civil Service Career.</span>
+            </h1>
+
+            <p className="text-slate-600 text-xl leading-relaxed max-w-lg">
+              Access your personalized dashboard to master the Public Service
+              Rules, Financial Instructions, and Current Affairs required for
+              your next grade level.
+            </p>
+
+            <div className="mt-12 space-y-6">
+              {[
+                { id: "01", text: "CBT Promotion Exam Simulations" },
+                { id: "02", text: "Board Interview Preparation" },
+              ].map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-4 text-slate-700 group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-white shadow-sm border border-emerald-100 flex items-center justify-center text-emerald-700 font-bold group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                    {item.id}
+                  </div>
+                  <span className="font-semibold text-lg">{item.text}</span>
+                </div>
+              ))}
             </div>
-            <span className="relative z-10 bg-white px-2 text-slate-500">
-              or log in with email
-            </span>
-          </div> */}
+          </m.div>
 
-          {/* Login form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {serverError && (
-              <p className="text-sm text-red-500 bg-red-100/60 p-2 rounded-md border border-red-200">
-                {serverError}
-              </p>
-            )}
-
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium mb-1 text-slate-700"
-              >
-                Email Address
-              </label>
-              <input
-                type="email"
-                {...register("email", { required: "Enter your email" })}
-                placeholder="you@example.com"
-                className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-              />
-              {errors.email?.message && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.email.message as string}
+          {/* Right Column: Login Card */}
+          <m.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="w-full max-w-md mx-auto"
+          >
+            <div className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-emerald-900/10 border border-white p-8 md:p-12">
+              <div className="mb-10 text-center lg:text-left">
+                <h2 className="text-3xl font-bold text-slate-900">
+                  Officer Login
+                </h2>
+                <p className="text-slate-500 mt-2">
+                  Enter your credentials to access the portal
                 </p>
-              )}
-            </div>
-
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <label
-                  htmlFor="password"
-                  className="text-sm font-medium text-slate-700"
-                >
-                  Password
-                </label>
-                <button
-                  type="button"
-                  className="text-sm text-emerald-600 hover:text-emerald-700"
-                >
-                  Forgot password?
-                </button>
               </div>
-              <input
-                type="password"
-                {...register("password", { required: "Enter your password" })}
-                placeholder="••••••••"
-                className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-              />
-              {errors.password?.message && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.password.message as string}
+
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                <AnimatePresence mode="wait">
+                  {serverError && (
+                    <m.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="text-sm font-medium text-red-600 bg-red-50 p-4 rounded-xl border border-red-100"
+                    >
+                      {serverError}
+                    </m.div>
+                  )}
+                </AnimatePresence>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 ml-1">
+                    Official Email
+                  </label>
+                  <input
+                    type="email"
+                    {...register("email", { required: "Email is required" })}
+                    placeholder="officer@agency.gov"
+                    className="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-white text-slate-900 ring-offset-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none shadow-sm"
+                  />
+                  {errors.email && (
+                    <span className="text-xs font-medium text-red-500 ml-1">
+                      {errors.email.message}
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Password
+                    </label>
+                    <button
+                      type="button"
+                      className="text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
+                  <input
+                    type="password"
+                    {...register("password", {
+                      required: "Password is required",
+                    })}
+                    placeholder="••••••••"
+                    className="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-white text-slate-900 ring-offset-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none shadow-sm"
+                  />
+                  {errors.password && (
+                    <span className="text-xs font-medium text-red-500 ml-1">
+                      {errors.password.message}
+                    </span>
+                  )}
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={!isValid || !isDirty || loading}
+                  className="w-full py-7 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg shadow-xl shadow-emerald-200 transition-all active:scale-[0.98] disabled:bg-slate-300 disabled:shadow-none"
+                >
+                  {loading ? (
+                    <div className="flex items-center gap-3">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Verifying...
+                    </div>
+                  ) : (
+                    "Access Portal"
+                  )}
+                </Button>
+              </form>
+
+              <div className="mt-10 pt-8 border-t border-slate-100 text-center">
+                <p className="text-slate-500 text-sm">
+                  Don't have an account?{" "}
+                  <button
+                    onClick={() => navigate("/create-account")}
+                    className="text-emerald-600 font-bold hover:underline underline-offset-4"
+                  >
+                    Register here
+                  </button>
                 </p>
-              )}
+              </div>
             </div>
-
-            <Button
-              type="submit"
-              disabled={isSubmitting || !isValid || !isDirty || loading}
-              className="w-full px-6 py-3 rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Signing in..." : "Login"}
-            </Button>
-          </form>
-
-          <p className="text-sm text-center mt-6 text-slate-500">
-            Don’t have an account?{" "}
-            <span
-              onClick={() => navigate("/create-account")}
-              className="text-emerald-600 font-medium cursor-pointer hover:text-emerald-700"
-            >
-              Create one
-            </span>
-          </p>
-        </m.div>
+          </m.div>
+        </div>
       </LazyMotion>
     </section>
   );

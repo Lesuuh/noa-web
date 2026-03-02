@@ -1,109 +1,135 @@
-import { ArrowRight, Clock, Trophy, TrendingUp } from "@/lib/icons";
+import { ArrowRight, Clock, Trophy, TrendingUp} from "@/lib/icons";
 import { Link } from "react-router-dom";
 import { formatAttemptTime } from "../formattedDateTime";
 import { ExamAttempt } from "@/types";
+import { FileText } from "lucide-react";
 
 const RecentTests = ({ attempts }: { attempts: ExamAttempt[] }) => {
-  const getScoreBadgeStyle = (score: number) => {
+  // Professional status mapping
+  const getStatusMetrics = (score: number) => {
     if (score >= 90) {
-      return "bg-emerald-600  text-white shadow-sm";
+      return {
+        label: "Distinction",
+        styles: "bg-emerald-100 text-emerald-800 border-emerald-200",
+        icon: <Trophy className="w-3 h-3" />,
+      };
     } else if (score >= 75) {
-      return "bg-cyan-50 text-cyan-700 border border-cyan-200";
+      return {
+        label: "Qualified",
+        styles: "bg-blue-100 text-blue-800 border-blue-200",
+        icon: <TrendingUp className="w-3 h-3" />,
+      };
     } else {
-      return "bg-orange-50 text-orange-700 border border-orange-200";
+      return {
+        label: "Review Required",
+        styles: "bg-slate-100 text-slate-600 border-slate-200",
+        icon: <Clock className="w-3 h-3" />,
+      };
     }
-  };
-
-  const getScoreIcon = (score: number) => {
-    if (score >= 90) {
-      return <Trophy className="w-3.5 h-3.5" />;
-    } else if (score >= 75) {
-      return <TrendingUp className="w-3.5 h-3.5" />;
-    }
-    return null;
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-2">
-          <div className="p-2 bg-emerald-50 rounded-lg">
-            <Clock className="w-5 h-5 text-emerald-600" />
+    <div className="bg-white border border-slate-200 rounded-[2rem] overflow-hidden shadow-sm transition-all hover:shadow-md">
+      {/* Header Section */}
+      <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-white rounded-xl border border-slate-200 shadow-sm">
+            <FileText className="w-5 h-5 text-emerald-700" />
           </div>
-          <h3 className="font-bold text-base md:text-lg text-slate-800">
-            Recent Tests
-          </h3>
+          <div>
+            <h3 className="font-black text-slate-900 tracking-tight">
+              Examination History
+            </h3>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+              Official Records
+            </p>
+          </div>
         </div>
         {attempts.length > 0 && (
-          <span className="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full font-medium">
-            {attempts.length} total
+          <span className="text-[11px] font-black text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
+            {attempts.length} ATTEMPTS
           </span>
         )}
       </div>
 
-      <div className="space-y-2">
+      <div className="divide-y divide-slate-100">
         {attempts.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="inline-flex p-4 bg-slate-50 rounded-full mb-3">
+          <div className="text-center py-16 px-6">
+            <div className="inline-flex p-5 bg-slate-50 rounded-full mb-4 border border-slate-100">
               <Clock className="w-8 h-8 text-slate-300" />
             </div>
-            <p className="text-slate-500 text-sm">No tests taken yet.</p>
-            <p className="text-slate-400 text-xs mt-1">
-              Start your first test to see your progress here
+            <p className="text-slate-900 font-bold">
+              No examination history found.
+            </p>
+            <p className="text-slate-500 text-sm mt-1 max-w-[200px] mx-auto">
+              Complete your first CBT assessment to populate your service
+              record.
             </p>
           </div>
         ) : (
           attempts.slice(0, 5).map((t, idx) => {
             const { dateLabel } = formatAttemptTime(t.started_at);
+            const status = getStatusMetrics(t.score);
+
             return (
               <div
                 key={idx}
-                className="group relative flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-slate-50 to-white hover:from-emerald-50 hover:to-cyan-50 transition-all duration-200 border border-slate-200 hover:border-emerald-200 hover:shadow-sm"
+                className="group flex flex-col sm:flex-row sm:items-center justify-between p-6 hover:bg-slate-50 transition-colors"
               >
-                {/* Left section - Date and Score */}
-                <div className="flex items-center gap-3 flex-1">
+                {/* Identification Column */}
+                <div className="flex items-center gap-5 mb-4 sm:mb-0">
+                  <div className="hidden sm:flex flex-col items-center justify-center w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 group-hover:bg-white group-hover:text-emerald-600 border border-transparent group-hover:border-emerald-100 transition-all font-black text-xs">
+                    #{attempts.length - idx}
+                  </div>
+
                   <div className="flex flex-col">
-                    <span className="text-xs text-slate-500 font-medium mb-1">
+                    <span className="text-sm font-black text-slate-900">
                       {dateLabel}
                     </span>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`inline-flex items-center gap-1 text-sm font-bold px-2.5 py-1 rounded-full ${getScoreBadgeStyle(
-                          t.score
-                        )}`}
-                      >
-                        {getScoreIcon(t.score)}
-                        {t.score}%
-                      </span>
-                      <span className="text-xs text-slate-400 flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {(t.duration_seconds / 60).toFixed(0)}m
-                      </span>
-                    </div>
+                    <span className="text-[11px] text-slate-400 font-bold uppercase tracking-tight">
+                      {/* Started at {timeLabel} •{" "} */}
+                      {(t.duration_seconds / 60).toFixed(0)}m duration
+                    </span>
                   </div>
                 </div>
 
-                {/* Right section - Review link */}
-                <Link
-                  to={`/review/${t.id}`}
-                  className="flex items-center gap-1.5 text-emerald-600 hover:text-emerald-700 font-medium text-sm  group-hover:translate-x-1 transition-transform duration-200"
-                >
-                  <span>Review</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
+                {/* Performance Column */}
+                <div className="flex items-center justify-between sm:justify-end gap-6">
+                  <div className="flex flex-col items-end gap-1.5">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-black uppercase tracking-tight ${status.styles}`}
+                      >
+                        {status.icon}
+                        {status.label}
+                      </span>
+                      <span className="text-xl font-black text-slate-900">
+                        {t.score}%
+                      </span>
+                    </div>
+                  </div>
+
+                  <Link
+                    to={`/review/${t.id}`}
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-900 text-white hover:bg-emerald-700 transition-all active:scale-90"
+                    title="Review Examination"
+                  >
+                    <ArrowRight className="w-5 h-5" />
+                  </Link>
+                </div>
               </div>
             );
           })
         )}
       </div>
 
-      {/* {attempts.length > 5 && (
-        <div className="mt-4 pt-4 border-t border-slate-100">
-          <button className="w-full text-center text-sm text-slate-600 hover:text-emerald-600 font-medium transition-colors">
-            View all {attempts.length} tests →
+      {attempts.length > 5 && (
+        <div className="p-4 bg-slate-50/50 border-t border-slate-100">
+          <button className="w-full py-3 text-xs font-black text-slate-500 hover:text-emerald-700 uppercase tracking-widest transition-colors">
+            Access Full Examination Ledger →
           </button>
         </div>
-      )} */}
+      )}
     </div>
   );
 };

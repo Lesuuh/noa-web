@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
-import { Menu } from "@/lib/icons";
+import { Menu, Bell, ChevronRight } from "@/lib/icons";
 import { useUser } from "@/contexts/UserContext";
+import { Search } from "lucide-react";
 
 interface NavbarProps {
   setSidebarOpen: Dispatch<SetStateAction<boolean>>;
@@ -8,42 +9,68 @@ interface NavbarProps {
 
 export default function Navbar({ setSidebarOpen }: NavbarProps) {
   const { user } = useUser();
+
+  // const pathname = typeof window !== "undefined" ? window.location.pathname : ""
+
   return (
-    <header className="h-16 bg-white shadow-sm flex items-center justify-between px-6">
-      {/* Left side: Mobile menu button + Search bar */}
-      <div className="flex items-center gap-4 flex-1">
-        {/* Mobile menu button */}
+    <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 px-6 flex items-center justify-between">
+      {/* Left side: Navigation Toggle & Breadcrumbs */}
+      <div className="flex items-center gap-4">
         <button
           onClick={() => setSidebarOpen(true)}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors md:hidden"
+          className="p-2.5 rounded-xl hover:bg-slate-100 transition-all active:scale-95 md:hidden border border-slate-200 shadow-sm"
         >
-          <Menu className="text-gray-700 w-5 h-5" />
+          <Menu className="text-slate-700 w-5 h-5" />
         </button>
 
-        <div className="w-10 h-8 md:hidden bg-gradient-to-br from-emerald-600 to-emerald-800 rounded flex items-center justify-center text-white font-bold text-sm drop-shadow-md">
-          NOA
+        {/* Desktop Breadcrumb/Status Indicator */}
+        <div className="hidden md:flex items-center gap-2 text-sm">
+          <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Portal</span>
+          <ChevronRight className="w-3 h-3 text-slate-300" />
+          <span className="text-slate-900 font-black tracking-tight">Dashboard</span>
+        </div>
+
+        {/* Mobile Logo Branding */}
+        <div className="md:hidden flex items-center gap-2">
+           <div className="w-9 h-7 bg-emerald-700 rounded-lg flex items-center justify-center text-white font-black text-xs shadow-md shadow-emerald-900/20">
+            NOA
+          </div>
         </div>
       </div>
 
-      {/* Right side: Notification + Avatar */}
-      <div className="flex items-center gap-6">
-        {/* <button className="relative">
-          <Bell className="text-gray-600" />
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
-            3
-          </span>
-        </button> */}
-        <div className="flex items-center gap-2">
-          <div
-            className="rounded-full w-8 h-8 bg-emerald-600 text-white flex items-center justify-center text-xl"
-            aria-label={`User initial ${user?.full_name?.charAt(0) ?? ""}`}
-          >
-            {user?.full_name?.charAt(0) ?? "?"}
+      {/* Right side: Global Actions & User Profile */}
+      <div className="flex items-center gap-3 md:gap-6">
+        {/* Global Search Placeholder (Official Look) */}
+        <button className="p-2.5 text-slate-400 hover:text-emerald-700 hover:bg-emerald-50 rounded-xl transition-all hidden sm:block">
+          <Search className="w-5 h-5" />
+        </button>
+
+        {/* Notification Hub */}
+        <button className="relative p-2.5 text-slate-400 hover:text-emerald-700 hover:bg-emerald-50 rounded-xl transition-all">
+          <Bell className="w-5 h-5" />
+          <span className="absolute top-2 right-2.5 bg-red-600 border-2 border-white w-2.5 h-2.5 rounded-full" />
+        </button>
+
+        {/* Vertical Divider */}
+        <div className="h-8 w-[1px] bg-slate-200 hidden xs:block" />
+
+        {/* User Identity Section */}
+        <div className="flex items-center gap-3 pl-1">
+          <div className="flex flex-col items-end hidden lg:flex">
+            <span className="text-sm font-black text-slate-900 leading-none">
+              {user?.full_name || "Guest Officer"}
+            </span>
+            <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-tighter mt-1">
+              Active Session
+            </span>
           </div>
 
-          <span className="text-sm font-medium hidden sm:inline">
-            {user?.full_name}
-          </span>
+          <div 
+            className="w-10 h-10 rounded-2xl bg-emerald-700 border-2 border-emerald-100 shadow-lg shadow-emerald-900/10 flex items-center justify-center text-white font-black text-lg transition-transform hover:rotate-3 cursor-pointer"
+            aria-label={`Officer ${user?.full_name?.charAt(0) ?? "O"}`}
+          >
+            {user?.full_name?.charAt(0) ?? "O"}
+          </div>
         </div>
       </div>
     </header>

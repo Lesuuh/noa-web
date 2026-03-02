@@ -8,7 +8,7 @@ import { supabase } from "@/supabase";
 import { formatAttemptTime } from "@/components/formattedDateTime";
 import { useExamStats } from "@/hooks/useExamStats";
 const Achievement_Chart = lazy(
-  () => import("@/components/dashboard/Achievement_Chart")
+  () => import("@/components/dashboard/Achievement_Chart"),
 );
 const RecentTests = lazy(() => import("@/components/dashboard/RecentTests"));
 import KpiCard from "@/components/dashboard/KpiCard";
@@ -68,7 +68,7 @@ export default function Dashboard() {
           const data = await fetchUserExamAttempts(user.id);
 
           queryClient.setQueryData(["attempts"], data);
-        }
+        },
       )
       .subscribe();
     return () => {
@@ -94,42 +94,32 @@ export default function Dashboard() {
   const kpiData = useMemo(
     () => [
       {
-        label: "Tests Completed",
+        label: "Exams Completed",
         value: totalTestTaken,
         icon: Target,
-        bgColor: "bg-emerald-50",
-        textColor: "text-emerald-700",
-        borderColor: "border-emerald-300",
+        textColor: "text-emerald-600",
       },
       {
-        label: "Average Score",
+        label: "Success Rate",
         value: `${averageScore.toFixed(1)}%`,
         icon: TrendingUp,
-        bgColor: "bg-amber-50",
-        textColor: "text-amber-700",
-        borderColor: "border-amber-300",
+        textColor: "text-blue-600",
       },
       {
-        label: "Highest Score",
+        label: "Peak Performance",
         value: `${highestScore}%`,
         icon: Trophy,
-        // Refined Gold for premium look
-        bgColor: "bg-yellow-100",
-        textColor: "text-yellow-800",
-        borderColor: "border-yellow-400",
+        textColor: "text-amber-500",
       },
       {
-        label: "Avg. Completion Time",
-        value: `${averageTime} min`,
+        label: "Avg. Response Time",
+        value: `${averageTime}m`,
         icon: TimerIcon,
-        bgColor: "bg-cyan-50", // Changed from blue-50
-        textColor: "text-cyan-700", // Changed from blue-700
-        borderColor: "border-cyan-300", // Changed from blue-300
+        textColor: "text-cyan-600",
       },
     ],
-    [averageScore, averageTime, highestScore, totalTestTaken]
+    [averageScore, averageTime, highestScore, totalTestTaken],
   );
-
   const achievements = useMemo(
     () => [
       {
@@ -137,7 +127,7 @@ export default function Dashboard() {
         value:
           typeof toComplete5Challenges === "function"
             ? toComplete5Challenges()
-            : toComplete5Challenges ?? 0,
+            : (toComplete5Challenges ?? 0),
         color: "bg-emerald-600",
       },
       {
@@ -145,11 +135,11 @@ export default function Dashboard() {
         value:
           typeof scoreAbove90 === "function"
             ? scoreAbove90()
-            : scoreAbove90 ?? 0,
+            : (scoreAbove90 ?? 0),
         color: "bg-cyan-700",
       },
     ],
-    [scoreAbove90, toComplete5Challenges]
+    [scoreAbove90, toComplete5Challenges],
   );
 
   // Mock data

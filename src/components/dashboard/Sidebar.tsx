@@ -1,17 +1,23 @@
-import { List, Settings, Star, Target, X } from "@/lib/icons";
+import {
+  List,
+  Settings,
+  Star,
+  Target,
+  X,
+  
+} from "@/lib/icons";
 import { Dispatch, lazy, SetStateAction, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const LogoutModal = lazy(() => import("../modals/LogoutModal"));
-
 import { logoutUser } from "@/api/api";
+import { LogOut, ShieldCheck } from "lucide-react";
 
 const navItems = [
-  { label: "Dashboard", icon: Target, href: "/" },
-  { label: "Attempts", icon: List, href: "/history" },
-  { label: "Settings", icon: Settings, href: "/settings" },
-  // { label: "Support", icon: HelpCircle, href: "/support" },
-  { label: "Freemium", icon: Star, href: "/freemium" },
+  { label: "Executive Dashboard", icon: Target, href: "/" },
+  { label: "Examination History", icon: List, href: "/history" },
+  { label: "System Settings", icon: Settings, href: "/settings" },
+  { label: "Premium Access", icon: Star, href: "/freemium" },
 ];
 
 interface SidebarProps {
@@ -22,88 +28,112 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
   const [logoutModal, setLogoutModal] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation(); // Used to highlight active routes
 
-  const openLogoutModal = () => {
-    setLogoutModal(true);
-  };
   const handleLogout = async () => {
     const success = await logoutUser();
-    if (success) {
-      navigate("/login"); // Redirect to login after logout
-    }
+    if (success) navigate("/login");
   };
+
   return (
     <>
       <aside
-        className={`h-full w-64 bg-white border-r border-slate-200 transition-transform duration-300 
-          fixed md:static inset-y-0 left-0 z-40
-          ${
-            sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-          }`}
+        className={`h-full w-72 bg-white border-r border-slate-200 transition-all duration-300 
+          fixed md:static inset-y-0 left-0 z-50 shadow-xl md:shadow-none
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
       >
-        {/* Rest of your sidebar code stays the same */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-200">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-8 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded flex items-center justify-center text-white font-bold text-sm drop-shadow-md">
-              NOA
+        {/* Header / Brand Identity */}
+        <div className="h-20 flex items-center justify-between px-6 border-b border-slate-100 bg-slate-50/30">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-emerald-700 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-900/20">
+              <ShieldCheck className="w-6 h-6" />
             </div>
-            <div>
-              <h1 className="font-bold text-base text-slate-900">NOA CBT</h1>
-              <p className="text-[10px] text-slate-500">
-                Professional Excellence
+            <div className="flex flex-col">
+              <h1 className="font-black text-slate-900 text-sm tracking-tight leading-none mb-1">
+                NOA PORTAL
+              </h1>
+              <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest leading-none">
+                CBT Division
               </p>
             </div>
           </div>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors md:hidden"
+            className="p-2 rounded-xl hover:bg-slate-100 transition-colors md:hidden"
           >
-            <X className="w-5 h-5 text-slate-700" />
+            <X className="w-5 h-5 text-slate-500" />
           </button>
         </div>
 
-        <div className="flex flex-col justify-between h-[calc(100%-64px)] px-2 py-4">
-          <nav className="space-y-1 overflow-y-auto">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                to={item.href}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-emerald-50 transition-colors group"
-              >
-                <item.icon className="w-5 h-5 text-emerald-600 group-hover:text-emerald-700" />
-                <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors">
-                  {item.label}
-                </span>
-              </Link>
-            ))}
-          </nav>
+        {/* Navigation Section */}
+        <div className="flex flex-col justify-between h-[calc(100%-80px)] p-4">
+          <div className="space-y-6">
+            <div>
+              <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">
+                Main Menu
+              </p>
+              <nav className="space-y-1.5">
+                {navItems.map((item) => {
+                  const isActive = location.pathname === item.href;
+                  return (
+                    <Link
+                      key={item.label}
+                      to={item.href}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${
+                        isActive
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                          : "text-slate-600 hover:bg-slate-50 border border-transparent"
+                      }`}
+                    >
+                      <item.icon
+                        className={`w-5 h-5 transition-colors ${
+                          isActive
+                            ? "text-emerald-700"
+                            : "text-slate-400 group-hover:text-emerald-600"
+                        }`}
+                      />
+                      <span
+                        className={`text-sm tracking-tight ${isActive ? "font-bold" : "font-semibold"}`}
+                      >
+                        {item.label}
+                      </span>
+                      {isActive && (
+                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                      )}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+          </div>
 
-          <div className="pt-4 border-t border-slate-200">
+          {/* Footer Actions */}
+          <div className="space-y-4">
+            <div className="p-4 bg-slate-900 rounded-2xl relative overflow-hidden group cursor-pointer">
+              <div className="relative z-10">
+                <p className="text-white text-xs font-bold mb-1">
+                  Service Status
+                </p>
+                <p className="text-emerald-400 text-[10px] font-black uppercase tracking-widest">
+                  System Verified
+                </p>
+              </div>
+              <div className="absolute top-0 right-0 p-2 opacity-20 group-hover:opacity-40 transition-opacity">
+                <ShieldCheck className="text-white w-10 h-10 -rotate-12" />
+              </div>
+            </div>
+
             <button
-              onClick={openLogoutModal}
-              className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-red-50 cursor-pointer transition-colors group"
+              onClick={() => setLogoutModal(true)}
+              className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-700 transition-all font-bold text-sm border border-transparent hover:border-red-100 group"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-5 h-5 text-red-600 group-hover:text-red-700 transition-colors"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V5"
-                />
-              </svg>
-              <span className="text-sm font-medium text-red-600 group-hover:text-red-700 transition-colors">
-                Logout
-              </span>
+              <LogOut className="w-5 h-5 text-slate-400 group-hover:text-red-600 transition-colors" />
+              Sign Out
             </button>
           </div>
         </div>
       </aside>
+
       <LogoutModal
         handleLogout={handleLogout}
         setLogoutModal={setLogoutModal}
