@@ -3,6 +3,7 @@ import { lazy, Suspense } from "react";
 import Loader from "./components/Loader";
 import AuthGuard from "./components/AuthGuard";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import AdminLayout from "./layouts/AdminLayout";
 
 const DashboardLayout = lazy(() => import("./layouts/DashboardLayout"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
@@ -14,6 +15,11 @@ const ExamPage = lazy(() => import("./pages/ExamPage"));
 const Freemium = lazy(() => import("./pages/Freemuim"));
 const History = lazy(() => import("./pages/History"));
 // const Settings = lazy(() => import("./pages/Settings"));
+const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
+const QuestionsList = lazy(() => import("./pages/admin/QuestionsList"));
+const PreviewPage = lazy(() => import("./pages/admin/PreviewPage"));
+const AnalyticsPage = lazy(() => import("./pages/admin/AnalyticsPage"));
+const AdminSettings = lazy(() => import("./pages/admin/Settings"));
 
 const queryClient = new QueryClient();
 const App = () => {
@@ -43,6 +49,21 @@ const App = () => {
               </Route>
               <Route path="/exam" element={<ExamPage />} />
             </Route>
+
+            <Route
+              path="/admin/*"
+              element={
+                <AdminLayout>
+                  <Routes>
+                    <Route path="home" element={<AdminDashboard />} />
+                    <Route path="questions" element={<QuestionsList />} />
+                    <Route path="preview" element={<PreviewPage />} />
+                    <Route path="analytics" element={<AnalyticsPage />} />
+                    <Route path="settings" element={<AdminSettings />} />
+                  </Routes>
+                </AdminLayout>
+              }
+            />
 
             {/* 404 route */}
             <Route path="*" element={<NotFound />} />
